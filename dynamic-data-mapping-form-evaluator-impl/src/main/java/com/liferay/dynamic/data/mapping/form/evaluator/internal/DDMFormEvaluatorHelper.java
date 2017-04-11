@@ -51,7 +51,6 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
@@ -232,10 +231,8 @@ public class DDMFormEvaluatorHelper {
 		ResourceBundleLoader portalResourceBundleLoader =
 			ResourceBundleLoaderUtil.getPortalResourceBundleLoader();
 
-		String languageId = LocaleUtil.toLanguageId(_locale);
-
 		ResourceBundle portalResourceBundle =
-			portalResourceBundleLoader.loadResourceBundle(languageId);
+			portalResourceBundleLoader.loadResourceBundle(_locale);
 
 		ResourceBundle portletResourceBundle = ResourceBundleUtil.getBundle(
 			"content.Language", _locale, getClass());
