@@ -46,8 +46,12 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.util.AggregateResourceBundle;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.ResourceBundleLoader;
+import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -59,6 +63,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -92,6 +97,8 @@ public class DDMFormEvaluatorHelper {
 		createDDMFormFieldValues(ddmFormEvaluatorContext.getDDMFormValues());
 
 		createDDMFormFieldRuleEvaluationResultsMap();
+
+		_resourceBundle = createResourceBundle();
 
 		registerDDMExpressionCustomFunctions();
 	}
@@ -142,8 +149,15 @@ public class DDMFormEvaluatorHelper {
 		setDDMFormFieldEvaluationResultValidation(
 			ddmFormFieldEvaluationResult, ddmFormField, ddmFormFieldValue);
 
-		String valueString = getValueString(
-			ddmFormFieldValue.getValue(), ddmFormField.getType());
+		String type = ddmFormField.getType();
+
+		String valueString = getValueString(ddmFormFieldValue.getValue(), type);
+
+		if (Objects.equals(type, "validation")) {
+			ddmFormFieldEvaluationResult.setValue(valueString);
+
+			return ddmFormFieldEvaluationResult;
+		}
 
 		Object value = FieldConstants.getSerializable(
 			ddmFormField.getDataType(), valueString);
@@ -207,6 +221,20 @@ public class DDMFormEvaluatorHelper {
 		}
 	}
 
+	protected ResourceBundle createResourceBundle() {
+		ResourceBundleLoader portalResourceBundleLoader =
+			ResourceBundleLoaderUtil.getPortalResourceBundleLoader();
+
+		ResourceBundle portalResourceBundle =
+			portalResourceBundleLoader.loadResourceBundle(_locale);
+
+		ResourceBundle portletResourceBundle = ResourceBundleUtil.getBundle(
+			"content.Language", _locale, getClass());
+
+		return new AggregateResourceBundle(
+			portletResourceBundle, portalResourceBundle);
+	}
+
 	protected void evaluateDDMFormRule(DDMFormRule ddmFormRule)
 		throws DDMFormEvaluationException {
 
@@ -231,6 +259,18 @@ public class DDMFormEvaluatorHelper {
 		}
 
 		return ddmFormFieldEvaluationResults;
+	}
+
+	protected String getDDMFormFieldValidationErrorMessage(
+		DDMFormFieldValidation ddmFormFieldValidation) {
+
+		String errorMessage = ddmFormFieldValidation.getErrorMessage();
+
+		if (Validator.isNotNull(errorMessage)) {
+			return errorMessage;
+		}
+
+		return LanguageUtil.get(_resourceBundle, "this-field-is-invalid");
 	}
 
 	protected DDMFormFieldValue getDDMFormFieldValue(
@@ -520,7 +560,7 @@ public class DDMFormEvaluatorHelper {
 
 		if (required && visible && emptyValue) {
 			ddmFormFieldEvaluationResult.setErrorMessage(
-				LanguageUtil.get(_locale, "this-field-is-required"));
+				LanguageUtil.get(_resourceBundle, "this-field-is-required"));
 
 			ddmFormFieldEvaluationResult.setValid(false);
 
@@ -551,7 +591,9 @@ public class DDMFormEvaluatorHelper {
 
 			if (!valid) {
 				ddmFormFieldEvaluationResult.setErrorMessage(
-					ddmFormFieldValidation.getErrorMessage());
+					getDDMFormFieldValidationErrorMessage(
+						ddmFormFieldValidation));
+
 				ddmFormFieldEvaluationResult.setValid(false);
 			}
 		}
@@ -623,6 +665,7 @@ public class DDMFormEvaluatorHelper {
 	private final Locale _locale;
 	private final Map<Integer, Integer> _pageFlow = new HashMap<>();
 	private final HttpServletRequest _request;
+	private final ResourceBundle _resourceBundle;
 	private final UserLocalService _userLocalService;
 
 }

@@ -41,12 +41,14 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.ResourceBundleLoader;
+import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.util.StringPool;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,19 +60,28 @@ import org.junit.runner.RunWith;
 
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * @author Leonardo Barros
  * @author Marcellus Tavares
  */
-@RunWith(MockitoJUnitRunner.class)
+@PrepareForTest(ResourceBundleLoaderUtil.class)
+@RunWith(PowerMockRunner.class)
+@SuppressStaticInitializationFor(
+	"com.liferay.portal.kernel.util.ResourceBundleLoaderUtil"
+)
 public class DDMFormEvaluatorHelperTest {
 
 	@Before
 	public void setUp() throws Exception {
-		setPortalUtil();
 		setUpLanguageUtil();
+		setUpPortalUtil();
+		setUpResourceBundleLoaderUtil();
 	}
 
 	@Test
@@ -850,6 +861,56 @@ public class DDMFormEvaluatorHelperTest {
 	}
 
 	@Test
+	public void testValidationExpressionWithNoErrorMessage() throws Exception {
+		DDMForm ddmForm = new DDMForm();
+
+		DDMFormField ddmFormField = createDDMFormField(
+			"field", "numeric", FieldConstants.INTEGER);
+
+		DDMFormFieldValidation ddmFormFieldValidation =
+			new DDMFormFieldValidation();
+
+		ddmFormFieldValidation.setExpression("field > 10");
+
+		ddmFormField.setDDMFormFieldValidation(ddmFormFieldValidation);
+
+		ddmForm.addDDMFormField(ddmFormField);
+
+		DDMFormValues ddmFormValues = new DDMFormValues(ddmForm);
+
+		ddmFormValues.addDDMFormFieldValue(
+			DDMFormValuesTestUtil.createDDMFormFieldValue(
+				"field_instanceId", "field", new UnlocalizedValue("1")));
+
+		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
+			new DDMFormEvaluatorHelper(
+				null, null, _ddmExpressionFactory,
+				new DDMFormEvaluatorContext(
+					ddmForm, ddmFormValues, LocaleUtil.US),
+				_jsonFactory, null);
+
+		DDMFormEvaluationResult ddmFormEvaluationResult =
+			ddmFormEvaluatorHelper.evaluate();
+
+		Map<String, DDMFormFieldEvaluationResult>
+			ddmFormFieldEvaluationResultMap =
+				ddmFormEvaluationResult.getDDMFormFieldEvaluationResultsMap();
+
+		Assert.assertEquals(
+			ddmFormFieldEvaluationResultMap.toString(), 1,
+			ddmFormFieldEvaluationResultMap.size());
+
+		DDMFormFieldEvaluationResult ddmFormFieldEvaluationResult =
+			ddmFormEvaluationResult.geDDMFormFieldEvaluationResult(
+				"field", "field_instanceId");
+
+		Assert.assertEquals(
+			"This field is invalid.",
+			ddmFormFieldEvaluationResult.getErrorMessage());
+		Assert.assertFalse(ddmFormFieldEvaluationResult.isValid());
+	}
+
+	@Test
 	public void testValidationRule() throws Exception {
 		DDMForm ddmForm = new DDMForm();
 
@@ -1017,7 +1078,31 @@ public class DDMFormEvaluatorHelperTest {
 		return ddmFormFieldEvaluationResult;
 	}
 
-	protected void setPortalUtil() throws Exception {
+	protected void setUpLanguageUtil() {
+		LanguageUtil languageUtil = new LanguageUtil();
+
+		_language = mock(Language.class);
+
+		when(
+			_language.get(
+				Matchers.any(ResourceBundle.class),
+				Matchers.eq("this-field-is-invalid"))
+		).thenReturn(
+			"This field is invalid."
+		);
+
+		when(
+			_language.get(
+				Matchers.any(ResourceBundle.class),
+				Matchers.eq("this-field-is-required"))
+		).thenReturn(
+			"This field is required."
+		);
+
+		languageUtil.setLanguage(_language);
+	}
+
+	protected void setUpPortalUtil() throws Exception {
 		PortalUtil portalUtil = new PortalUtil();
 
 		Portal portal = mock(Portal.class);
@@ -1028,19 +1113,17 @@ public class DDMFormEvaluatorHelperTest {
 		portalUtil.setPortal(portal);
 	}
 
-	protected void setUpLanguageUtil() {
-		LanguageUtil languageUtil = new LanguageUtil();
+	protected void setUpResourceBundleLoaderUtil() {
+		PowerMockito.mockStatic(ResourceBundleLoaderUtil.class);
 
-		_language = mock(Language.class);
+		ResourceBundleLoader portalResourceBundleLoader = mock(
+			ResourceBundleLoader.class);
 
 		when(
-			_language.get(
-				Matchers.eq(Locale.US), Matchers.eq("this-field-is-required"))
+			ResourceBundleLoaderUtil.getPortalResourceBundleLoader()
 		).thenReturn(
-			"This field is required."
+			portalResourceBundleLoader
 		);
-
-		languageUtil.setLanguage(_language);
 	}
 
 	@Mock
