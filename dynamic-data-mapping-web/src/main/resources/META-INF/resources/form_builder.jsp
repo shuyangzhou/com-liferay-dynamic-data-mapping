@@ -17,6 +17,7 @@
 <%@ include file="/init.jsp" %>
 
 <%
+long structureId = ParamUtil.getLong(request, "structureId");
 String portletResourceNamespace = ParamUtil.getString(request, "portletResourceNamespace");
 String className = ParamUtil.getString(request, "className");
 String script = ParamUtil.getString(request, "script");
@@ -25,6 +26,12 @@ String fieldsJSONArrayString = ParamUtil.getString(request, "fieldsJSONArrayStri
 scopeAvailableFields = ParamUtil.getString(request, "scopeAvailableFields");
 scopeClassNameId = PortalUtil.getClassNameId(className);
 scopeStorageType = ParamUtil.getString(request, "storageType");
+
+DDMStructure structure = null;
+
+if (structureId > 0) {
+	structure = DDMStructureServiceUtil.getStructure(structureId);
+}
 %>
 
 <%@ include file="/form_builder.jspf" %>

@@ -27,6 +27,16 @@ AUI.add(
 
 		var TPL_OPTION = '<option>{label}</option>';
 
+		new A.TooltipDelegate(
+			{
+				position: 'bottom',
+				trigger: '.multiple-badge-list .multiple-badge',
+				triggerHideEvent: ['blur', 'mouseleave'],
+				triggerShowEvent: ['focus', 'mouseover'],
+				visible: false
+			}
+		);
+
 		var SelectField = A.Component.create(
 			{
 				ATTRS: {
@@ -51,8 +61,13 @@ AUI.add(
 						value: {
 							chooseAnOption: Liferay.Language.get('choose-an-option'),
 							chooseOptions: Liferay.Language.get('choose-options'),
-							dynamicallyLoadedData: Liferay.Language.get('dynamically-loaded-data')
+							dynamicallyLoadedData: Liferay.Language.get('dynamically-loaded-data'),
+							emptyList: Liferay.Language.get('empty-list')
 						}
+					},
+
+					triggers: {
+						value: []
 					},
 
 					type: {
@@ -420,6 +435,17 @@ AUI.add(
 
 						var container = instance.get('container');
 
+						var triggers = instance.get('triggers');
+
+						if (triggers.length) {
+							for (var i = 0; i < triggers.length; i++) {
+								if (triggers[i].contains(event.target)) {
+
+									return false;
+								}
+							}
+						}
+
 						return !container.contains(event.target);
 					},
 
@@ -428,9 +454,15 @@ AUI.add(
 
 						var container = instance.get('container');
 
-						var openList = container.one('.' + CSS_DROP_CHOSEN).hasClass(CSS_HIDE);
+						var dropChosen = container.one('.' + CSS_DROP_CHOSEN);
 
-						return !openList;
+						if (dropChosen) {
+							var openList = dropChosen.hasClass(CSS_HIDE);
+
+							return !openList;
+						}
+
+						return false;
 					},
 
 					_removeBadge: function(value) {

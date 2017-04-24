@@ -12,9 +12,9 @@
  * details.
  */
 
-package com.liferay.dynamic.data.mapping.io;
+package com.liferay.dynamic.data.mapping.io.internal;
 
-import com.liferay.dynamic.data.mapping.io.internal.DDMFormValuesJSONDeserializerImpl;
+import com.liferay.dynamic.data.mapping.io.DDMFormValuesJSONDeserializer;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;

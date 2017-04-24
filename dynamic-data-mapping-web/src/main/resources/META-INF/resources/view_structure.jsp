@@ -24,6 +24,8 @@ String portletResourceNamespace = ParamUtil.getString(request, "portletResourceN
 
 DDMStructureVersion structureVersion = DDMStructureVersionServiceUtil.getStructureVersion(structureVersionId);
 
+DDMStructure structure = structureVersion.getStructure();
+
 String script = BeanParamUtil.getString(structureVersion, request, "definition");
 
 JSONArray fieldsJSONArray = DDMUtil.getDDMFormFieldsJSONArray(structureVersion, script);

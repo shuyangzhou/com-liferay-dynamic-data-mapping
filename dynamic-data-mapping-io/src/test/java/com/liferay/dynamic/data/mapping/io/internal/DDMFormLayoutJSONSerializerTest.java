@@ -12,9 +12,9 @@
  * details.
  */
 
-package com.liferay.dynamic.data.mapping.io;
+package com.liferay.dynamic.data.mapping.io.internal;
 
-import com.liferay.dynamic.data.mapping.io.internal.DDMFormLayoutJSONSerializerImpl;
+import com.liferay.dynamic.data.mapping.io.DDMFormLayoutJSONSerializer;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutPage;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;

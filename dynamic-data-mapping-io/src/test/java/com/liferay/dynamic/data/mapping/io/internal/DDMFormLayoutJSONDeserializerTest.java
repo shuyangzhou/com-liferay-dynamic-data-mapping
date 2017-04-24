@@ -12,9 +12,9 @@
  * details.
  */
 
-package com.liferay.dynamic.data.mapping.io;
+package com.liferay.dynamic.data.mapping.io.internal;
 
-import com.liferay.dynamic.data.mapping.io.internal.DDMFormLayoutJSONDeserializerImpl;
+import com.liferay.dynamic.data.mapping.io.DDMFormLayoutJSONDeserializer;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutColumn;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutPage;
