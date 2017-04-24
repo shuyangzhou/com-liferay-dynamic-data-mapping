@@ -274,6 +274,9 @@ public class DDMFormTemplateContextFactoryImpl
 		else if (Objects.equals(paginationMode, DDMFormLayout.TABBED_MODE)) {
 			return "ddm.tabbed_form";
 		}
+		else if (Objects.equals(paginationMode, DDMFormLayout.WIZARD_MODE)) {
+			return "ddm.wizard_form";
+		}
 
 		return "ddm.paginated_form";
 	}
