@@ -51,8 +51,13 @@ AUI.add(
 						value: {
 							chooseAnOption: Liferay.Language.get('choose-an-option'),
 							chooseOptions: Liferay.Language.get('choose-options'),
-							dynamicallyLoadedData: Liferay.Language.get('dynamically-loaded-data')
+							dynamicallyLoadedData: Liferay.Language.get('dynamically-loaded-data'),
+							emptyList: Liferay.Language.get('empty-list')
 						}
+					},
+
+					triggers: {
+						value: []
 					},
 
 					type: {
@@ -78,10 +83,20 @@ AUI.add(
 
 						instance._open = false;
 
+						instance._createBadgeTooltip();
+
 						instance._eventHandlers.push(
 							A.one('doc').after('click', A.bind(instance._afterClickOutside, instance)),
 							instance.bindContainerEvent('click', instance._handleContainerClick, '.' + CSS_FORM_FIELD_CONTAINER)
 						);
+					},
+
+					destructor: function() {
+						var instance = this;
+
+						if (instance._tooltip) {
+							instance._tooltip.destroy();
+						}
 					},
 
 					cleanSelect: function() {
@@ -180,6 +195,7 @@ AUI.add(
 
 						instance._getSelectTriggerAction().addClass(CSS_ACTIVE);
 
+						instance.get('container').one('.form-group').removeClass(CSS_HIDE);
 						instance.get('container').one('.' + CSS_DROP_CHOSEN).removeClass(CSS_HIDE);
 
 						instance._open = true;
@@ -255,6 +271,20 @@ AUI.add(
 						}
 
 						instance._preventDocumentClick = false;
+					},
+
+					_createBadgeTooltip: function() {
+						var instance = this;
+
+						instance._tooltip = new A.TooltipDelegate(
+							{
+								position: 'bottom',
+								trigger: '.multiple-badge-list .multiple-badge',
+								triggerHideEvent: ['blur', 'mouseleave'],
+								triggerShowEvent: ['focus', 'mouseover'],
+								visible: false
+							}
+						);
 					},
 
 					_getContextValue: function() {
@@ -420,6 +450,17 @@ AUI.add(
 
 						var container = instance.get('container');
 
+						var triggers = instance.get('triggers');
+
+						if (triggers.length) {
+							for (var i = 0; i < triggers.length; i++) {
+								if (triggers[i].contains(event.target)) {
+
+									return false;
+								}
+							}
+						}
+
 						return !container.contains(event.target);
 					},
 
@@ -428,9 +469,15 @@ AUI.add(
 
 						var container = instance.get('container');
 
-						var openList = container.one('.' + CSS_DROP_CHOSEN).hasClass(CSS_HIDE);
+						var dropChosen = container.one('.' + CSS_DROP_CHOSEN);
 
-						return !openList;
+						if (dropChosen) {
+							var openList = dropChosen.hasClass(CSS_HIDE);
+
+							return !openList;
+						}
+
+						return false;
 					},
 
 					_removeBadge: function(value) {
@@ -488,6 +535,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['liferay-ddm-form-field-select', 'liferay-ddm-form-field-select-search-support', 'liferay-ddm-form-renderer-field']
+		requires: ['aui-tooltip', 'liferay-ddm-form-field-select', 'liferay-ddm-form-field-select-search-support', 'liferay-ddm-form-renderer-field']
 	}
 );

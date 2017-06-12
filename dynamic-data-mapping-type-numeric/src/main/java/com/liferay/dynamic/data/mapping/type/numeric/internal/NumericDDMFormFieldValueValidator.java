@@ -18,14 +18,9 @@ import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueValidat
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueValidator;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.Value;
-import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-import java.util.function.Function;
 
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -39,16 +34,13 @@ public class NumericDDMFormFieldValueValidator
 	implements DDMFormFieldValueValidator {
 
 	@Override
-	public void validate(
-			DDMFormField ddmFormField, DDMFormFieldValue ddmFormFieldValue)
+	public void validate(DDMFormField ddmFormField, Value value)
 		throws DDMFormFieldValueValidationException {
-
-		Value value = ddmFormFieldValue.getValue();
 
 		for (Locale availableLocale : value.getAvailableLocales()) {
 			String valueString = value.getString(availableLocale);
 
-			if (!isNumber(ddmFormField.getDataType(), valueString)) {
+			if (!isNumber(valueString)) {
 				throw new DDMFormFieldValueValidationException(
 					String.format(
 						"\"%s\" is not a %s", valueString,
@@ -57,18 +49,9 @@ public class NumericDDMFormFieldValueValidator
 		}
 	}
 
-	@Activate
-	protected void activate() {
-		_dataTypeValidatorMap.put("double", Double::parseDouble);
-		_dataTypeValidatorMap.put("integer", Integer::parseInt);
-	}
-
-	protected boolean isNumber(String dataType, String valueString) {
-		Function<String, ?> validatorFunction = _dataTypeValidatorMap.get(
-			dataType);
-
+	protected boolean isNumber(String valueString) {
 		try {
-			validatorFunction.apply(valueString);
+			Double.parseDouble(valueString);
 		}
 		catch (NumberFormatException nfe) {
 			return false;
@@ -76,8 +59,5 @@ public class NumericDDMFormFieldValueValidator
 
 		return true;
 	}
-
-	private final Map<String, Function<String, ?>> _dataTypeValidatorMap =
-		new HashMap<>();
 
 }

@@ -23,6 +23,7 @@ import com.liferay.dynamic.data.mapping.annotations.DDMFormLayoutRow;
 import com.liferay.dynamic.data.mapping.annotations.DDMFormRule;
 import com.liferay.dynamic.data.mapping.form.field.type.DefaultDDMFormFieldTypeSettings;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
+import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 
 /**
@@ -90,7 +91,12 @@ public interface TextDDMFormFieldTypeSettings
 	public String dataSourceType();
 
 	@DDMFormField(
-		label = "%choose-a-data-provider", type = "select",
+		label = "%choose-a-data-provider",
+		properties = {
+			"dataSourceType=data-provider",
+			"ddmDataProviderInstanceId=getDataProviderInstances"
+		},
+		type = "select",
 		visibilityExpression = "equals(dataSourceType, \"data-provider\")"
 	)
 	public long ddmDataProviderInstanceId();
@@ -134,5 +140,11 @@ public interface TextDDMFormFieldTypeSettings
 
 	@DDMFormField(visibilityExpression = "FALSE")
 	public LocalizedValue tooltip();
+
+	@DDMFormField(
+		dataType = "string", label = "%validation", type = "validation"
+	)
+	@Override
+	public DDMFormFieldValidation validation();
 
 }

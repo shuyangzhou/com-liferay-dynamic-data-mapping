@@ -1842,18 +1842,20 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 				Element fieldsDisplayDynamicContent =
 					fieldsDisplayElement.element("dynamic-content");
 
-				String fieldsDisplayText =
-					fieldsDisplayDynamicContent.getText();
+				if (fieldsDisplayDynamicContent != null) {
+					String fieldsDisplayText =
+						fieldsDisplayDynamicContent.getText();
 
-				for (String fieldDisplayValue :
-						StringUtil.split(fieldsDisplayText)) {
+					for (String fieldDisplayValue :
+							StringUtil.split(fieldsDisplayText)) {
 
-					if (extractFieldName) {
-						fieldDisplayValue = StringUtil.extractFirst(
-							fieldDisplayValue, DDMImpl.INSTANCE_SEPARATOR);
+						if (extractFieldName) {
+							fieldDisplayValue = StringUtil.extractFirst(
+								fieldDisplayValue, DDMImpl.INSTANCE_SEPARATOR);
+						}
+
+						ddmFieldsDisplayValues.add(fieldDisplayValue);
 					}
-
-					ddmFieldsDisplayValues.add(fieldDisplayValue);
 				}
 			}
 
