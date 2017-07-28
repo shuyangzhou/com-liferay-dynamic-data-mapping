@@ -29,7 +29,7 @@ AUI.add(
 
 				var searchInputNode = instance._getInputSearch();
 
-				var options = instance.get('context').options;
+				var options = instance.get('options');
 
 				instance._renderList(options);
 
@@ -102,6 +102,7 @@ AUI.add(
 					{
 						multiple: instance.get('multiple'),
 						options: options,
+						strings: instance.get('strings'),
 						value: instance.getValueSelected()
 					}
 				);

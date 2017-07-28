@@ -31,7 +31,6 @@ AUI.add(
 			{
 				ATTRS: {
 					dataSourceType: {
-						getter: '_getDataSourceType',
 						value: 'manual'
 					},
 
@@ -51,8 +50,14 @@ AUI.add(
 						value: {
 							chooseAnOption: Liferay.Language.get('choose-an-option'),
 							chooseOptions: Liferay.Language.get('choose-options'),
-							dynamicallyLoadedData: Liferay.Language.get('dynamically-loaded-data')
+							dynamicallyLoadedData: Liferay.Language.get('dynamically-loaded-data'),
+							emptyList: Liferay.Language.get('empty-list'),
+							search: Liferay.Language.get('search')
 						}
+					},
+
+					triggers: {
+						value: []
 					},
 
 					type: {
@@ -78,10 +83,20 @@ AUI.add(
 
 						instance._open = false;
 
+						instance._createBadgeTooltip();
+
 						instance._eventHandlers.push(
 							A.one('doc').after('click', A.bind(instance._afterClickOutside, instance)),
 							instance.bindContainerEvent('click', instance._handleContainerClick, '.' + CSS_FORM_FIELD_CONTAINER)
 						);
+					},
+
+					destructor: function() {
+						var instance = this;
+
+						if (instance._tooltip) {
+							instance._tooltip.destroy();
+						}
 					},
 
 					cleanSelect: function() {
@@ -140,39 +155,15 @@ AUI.add(
 					getValue: function() {
 						var instance = this;
 
-						var value = instance.get('value');
-
-						if (!Lang.isArray(value)) {
-							value = [value];
-						}
-
-						value = value.join();
-
-						if (!value) {
-							var contextValue = instance._getContextValue();
-
-							var hasOption = instance._hasOption(contextValue);
-
-							if (contextValue && !hasOption) {
-								value = contextValue;
-							}
-						}
-
-						return value;
+						return instance.get('value') || [];
 					},
 
 					getValueSelected: function() {
 						var instance = this;
 
-						var value = instance.get('value');
+						var value = instance.get('value') || [];
 
-						if (!Lang.isArray(value)) {
-							value = [value];
-						}
-
-						var values = instance._getOptionsSelected(value);
-
-						return values;
+						return instance._getOptionsSelected(value);
 					},
 
 					openList: function() {
@@ -180,6 +171,7 @@ AUI.add(
 
 						instance._getSelectTriggerAction().addClass(CSS_ACTIVE);
 
+						instance.get('container').one('.form-group').removeClass(CSS_HIDE);
 						instance.get('container').one('.' + CSS_DROP_CHOSEN).removeClass(CSS_HIDE);
 
 						instance._open = true;
@@ -214,10 +206,6 @@ AUI.add(
 
 					setValue: function(value) {
 						var instance = this;
-
-						if (!Lang.isArray(value)) {
-							value = [value];
-						}
 
 						instance.set('value', value);
 
@@ -257,32 +245,18 @@ AUI.add(
 						instance._preventDocumentClick = false;
 					},
 
-					_getContextValue: function() {
+					_createBadgeTooltip: function() {
 						var instance = this;
 
-						var contextValue = instance.get('value');
-
-						if (Lang.isArray(contextValue)) {
-							contextValue = contextValue[0];
-						}
-
-						return contextValue;
-					},
-
-					_getDataSourceType: function(value) {
-						if (Lang.isString(value)) {
-							try {
-								value = JSON.parse(value);
+						instance._tooltip = new A.TooltipDelegate(
+							{
+								position: 'bottom',
+								trigger: '.multiple-badge-list .multiple-badge',
+								triggerHideEvent: ['blur', 'mouseleave'],
+								triggerShowEvent: ['focus', 'mouseover'],
+								visible: false
 							}
-							catch (e) {
-							}
-						}
-
-						if (Lang.isArray(value)) {
-							value = value[0];
-						}
-
-						return value;
+						);
 					},
 
 					_getOptions: function(options) {
@@ -296,19 +270,17 @@ AUI.add(
 
 						var optionsSelected = [];
 
-						if (Lang.isArray(value)) {
-							value.forEach(
-								function(value, index) {
-									options.forEach(
-										function(option, index) {
-											if (value && option.value === value) {
-												optionsSelected.push(option);
-											}
+						value.forEach(
+							function(value, index) {
+								options.forEach(
+									function(option, index) {
+										if (value && option.value === value) {
+											optionsSelected.push(option);
 										}
-									);
-								}
-							);
-						}
+									}
+								);
+							}
+						);
 
 						return optionsSelected;
 					},
@@ -324,7 +296,7 @@ AUI.add(
 
 						var value = target.getAttribute('data-badge-value');
 
-						var values = instance._removeBadge(value);
+						var values = instance._removeValue(value);
 
 						instance.setValue(values);
 					},
@@ -354,26 +326,24 @@ AUI.add(
 					_handleItemClick: function(target) {
 						var instance = this;
 
-						var value;
+						var value = instance.get('value') || [];
 
 						var currentTarget = target;
 
-						if (instance.get('multiple')) {
-							value = instance.get('value').slice();
+						var itemValue = currentTarget.getAttribute('data-option-value');
 
+						if (instance.get('multiple')) {
 							instance._open = true;
 
-							var itemValue = currentTarget.getAttribute('data-option-value');
-
 							if (currentTarget.getAttribute('data-option-selected')) {
-								value = instance._removeBadge(itemValue);
+								value = instance._removeValue(itemValue);
 							}
 							else {
 								value.push(itemValue);
 							}
 						}
 						else {
-							value = currentTarget.getAttribute('data-option-value');
+							value = [itemValue];
 
 							instance._open = false;
 						}
@@ -420,6 +390,17 @@ AUI.add(
 
 						var container = instance.get('container');
 
+						var triggers = instance.get('triggers');
+
+						if (triggers.length) {
+							for (var i = 0; i < triggers.length; i++) {
+								if (triggers[i].contains(event.target)) {
+
+									return false;
+								}
+							}
+						}
+
 						return !container.contains(event.target);
 					},
 
@@ -428,12 +409,18 @@ AUI.add(
 
 						var container = instance.get('container');
 
-						var openList = container.one('.' + CSS_DROP_CHOSEN).hasClass(CSS_HIDE);
+						var dropChosen = container.one('.' + CSS_DROP_CHOSEN);
 
-						return !openList;
+						if (dropChosen) {
+							var openList = dropChosen.hasClass(CSS_HIDE);
+
+							return !openList;
+						}
+
+						return false;
 					},
 
-					_removeBadge: function(value) {
+					_removeValue: function(value) {
 						var instance = this;
 
 						var values = instance.get('value');
@@ -449,10 +436,6 @@ AUI.add(
 
 					_selectDOMOption: function(optionNode, value) {
 						var selected = false;
-
-						if (Lang.isArray(value)) {
-							value = value[0];
-						}
 
 						if (value) {
 							if (optionNode.val()) {
@@ -471,13 +454,8 @@ AUI.add(
 					_setSelectNodeOptions: function(optionNode, value) {
 						var instance = this;
 
-						if (instance.get('multiple')) {
-							for (var i = 0; i < value.length; i++) {
-								instance._selectDOMOption(optionNode, value[i]);
-							}
-						}
-						else {
-							instance._selectDOMOption(optionNode, value);
+						for (var i = 0; i < value.length; i++) {
+							instance._selectDOMOption(optionNode, value[i]);
 						}
 					}
 				}
@@ -488,6 +466,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['liferay-ddm-form-field-select', 'liferay-ddm-form-field-select-search-support', 'liferay-ddm-form-renderer-field']
+		requires: ['aui-tooltip', 'liferay-ddm-form-field-select', 'liferay-ddm-form-field-select-search-support', 'liferay-ddm-form-renderer-field']
 	}
 );

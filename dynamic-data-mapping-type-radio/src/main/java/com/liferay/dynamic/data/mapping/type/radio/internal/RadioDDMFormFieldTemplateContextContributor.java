@@ -19,9 +19,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.render.DDMFormFieldRenderingContext;
-import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.Validator;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Marcellus Tavares
@@ -37,8 +34,8 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	immediate = true, property = "ddm.form.field.type.name=radio",
 	service = {
-		RadioDDMFormFieldTemplateContextContributor.class,
-		DDMFormFieldTemplateContextContributor.class
+		DDMFormFieldTemplateContextContributor.class,
+		RadioDDMFormFieldTemplateContextContributor.class
 	}
 )
 public class RadioDDMFormFieldTemplateContextContributor
@@ -105,11 +102,8 @@ public class RadioDDMFormFieldTemplateContextContributor
 
 		RadioDDMFormFieldContextHelper radioDDMFormFieldContextHelper =
 			new RadioDDMFormFieldContextHelper(
-				jsonFactory,
 				getDDMFormFieldOptions(
 					ddmFormField, ddmFormFieldRenderingContext),
-				ddmFormFieldRenderingContext.getValue(),
-				ddmFormField.getPredefinedValue(),
 				ddmFormFieldRenderingContext.getLocale());
 
 		return radioDDMFormFieldContextHelper.getOptions();
@@ -119,16 +113,14 @@ public class RadioDDMFormFieldTemplateContextContributor
 		DDMFormField ddmFormField,
 		DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
 
-		Object predefinedValue = ddmFormField.getProperty("predefinedValue");
+		LocalizedValue predefinedValue = ddmFormField.getPredefinedValue();
 
-		if (Validator.isNotNull(predefinedValue)) {
-			LocalizedValue localizedValue = (LocalizedValue)predefinedValue;
-
-			return localizedValue.getString(
-				ddmFormFieldRenderingContext.getLocale());
+		if (predefinedValue == null) {
+			return null;
 		}
 
-		return null;
+		return predefinedValue.getString(
+			ddmFormFieldRenderingContext.getLocale());
 	}
 
 	protected String getValue(
@@ -137,8 +129,5 @@ public class RadioDDMFormFieldTemplateContextContributor
 
 		return ddmFormFieldRenderingContext.getValue();
 	}
-
-	@Reference
-	protected JSONFactory jsonFactory;
 
 }

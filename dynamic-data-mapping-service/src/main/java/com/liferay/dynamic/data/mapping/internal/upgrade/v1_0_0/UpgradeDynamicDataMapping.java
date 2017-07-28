@@ -1580,9 +1580,8 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 	private static final String _CLASS_NAME_DDM_TEMPLATE =
 		"com.liferay.dynamic.data.mapping.model.DDMTemplate";
 
-	private static final String[] _DLFOLDER_GROUP_PERMISSIONS = {
-		"ADD_DOCUMENT", "ADD_SHORTCUT", "ADD_SUBFOLDER", "SUBSCRIBE", "VIEW"
-	};
+	private static final String[] _DLFOLDER_GROUP_PERMISSIONS =
+		{"ADD_DOCUMENT", "ADD_SHORTCUT", "ADD_SUBFOLDER", "SUBSCRIBE", "VIEW"};
 
 	private static final String[] _DLFOLDER_GUEST_PERMISSIONS = {"VIEW"};
 
@@ -1646,18 +1645,20 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 
 			Value value = ddmFormFieldValue.getValue();
 
-			for (Locale locale : value.getAvailableLocales()) {
-				String valueString = value.getString(locale);
+			if (value != null) {
+				for (Locale locale : value.getAvailableLocales()) {
+					String valueString = value.getString(locale);
 
-				if (Validator.isNull(valueString) ||
-					!Validator.isNumber(valueString)) {
+					if (Validator.isNull(valueString) ||
+						!Validator.isNumber(valueString)) {
 
-					continue;
+						continue;
+					}
+
+					Date dateValue = new Date(GetterUtil.getLong(valueString));
+
+					value.addString(locale, _dateFormat.format(dateValue));
 				}
-
-				Date dateValue = new Date(GetterUtil.getLong(valueString));
-
-				value.addString(locale, _dateFormat.format(dateValue));
 			}
 		}
 
@@ -1842,18 +1843,20 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 				Element fieldsDisplayDynamicContent =
 					fieldsDisplayElement.element("dynamic-content");
 
-				String fieldsDisplayText =
-					fieldsDisplayDynamicContent.getText();
+				if (fieldsDisplayDynamicContent != null) {
+					String fieldsDisplayText =
+						fieldsDisplayDynamicContent.getText();
 
-				for (String fieldDisplayValue :
-						StringUtil.split(fieldsDisplayText)) {
+					for (String fieldDisplayValue :
+							StringUtil.split(fieldsDisplayText)) {
 
-					if (extractFieldName) {
-						fieldDisplayValue = StringUtil.extractFirst(
-							fieldDisplayValue, DDMImpl.INSTANCE_SEPARATOR);
+						if (extractFieldName) {
+							fieldDisplayValue = StringUtil.extractFirst(
+								fieldDisplayValue, DDMImpl.INSTANCE_SEPARATOR);
+						}
+
+						ddmFieldsDisplayValues.add(fieldDisplayValue);
 					}
-
-					ddmFieldsDisplayValues.add(fieldDisplayValue);
 				}
 			}
 
@@ -2193,19 +2196,22 @@ public class UpgradeDynamicDataMapping extends UpgradeProcess {
 
 			Value value = ddmFormFieldValue.getValue();
 
-			for (Locale locale : value.getAvailableLocales()) {
-				String valueString = value.getString(locale);
+			if (value != null) {
+				for (Locale locale : value.getAvailableLocales()) {
+					String valueString = value.getString(locale);
 
-				if (Validator.isNull(valueString)) {
-					continue;
+					if (Validator.isNull(valueString)) {
+						continue;
+					}
+
+					String fileEntryUuid = PortalUUIDUtil.generate();
+
+					upgradeFileUploadReference(
+						fileEntryUuid, ddmFormFieldValue.getName(),
+						valueString);
+
+					value.addString(locale, toJSON(_groupId, fileEntryUuid));
 				}
-
-				String fileEntryUuid = PortalUUIDUtil.generate();
-
-				upgradeFileUploadReference(
-					fileEntryUuid, ddmFormFieldValue.getName(), valueString);
-
-				value.addString(locale, toJSON(_groupId, fileEntryUuid));
 			}
 		}
 

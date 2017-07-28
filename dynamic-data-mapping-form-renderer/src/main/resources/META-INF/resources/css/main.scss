@@ -145,6 +145,15 @@
 	}
 }
 
+.radio-options {
+	.radio-inline {
+		span {
+			display: inline-block;
+			height: 28px;
+		}
+	}
+}
+
 .multi-step-progress-bar {
 	> .complete {
 		color: #65B6F0;
@@ -175,7 +184,6 @@
 //└──────────────┘
 
 .form-builder-select-field {
-	min-width: 200px;
 	position: relative;
 
 	.select-arrow-down-container {
@@ -285,6 +293,15 @@
 
 			li:hover {
 				background-color: #F7FAFA;
+			}
+
+			.no-results-list {
+				color: rgba(134, 156, 173, 0.4);
+				cursor: default;
+
+				&:hover {
+					background-color: #FFF;
+				}
 			}
 		}
 	}

@@ -14,19 +14,20 @@
 
 package com.liferay.dynamic.data.mapping.form.evaluator.internal;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionFactory;
 import com.liferay.dynamic.data.mapping.expression.internal.DDMExpressionFactoryImpl;
 import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormEvaluationResult;
 import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormEvaluatorContext;
 import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormFieldEvaluationResult;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueAccessor;
+import com.liferay.dynamic.data.mapping.form.field.type.DefaultDDMFormFieldValueAccessor;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
 import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.model.UnlocalizedValue;
+import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.FieldConstants;
 import com.liferay.dynamic.data.mapping.test.util.DDMFormValuesTestUtil;
@@ -35,18 +36,25 @@ import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.ResourceBundleLoader;
+import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.util.StringPool;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,19 +66,29 @@ import org.junit.runner.RunWith;
 
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.Mockito;
+
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * @author Leonardo Barros
  * @author Marcellus Tavares
  */
-@RunWith(MockitoJUnitRunner.class)
+@PrepareForTest(ResourceBundleLoaderUtil.class)
+@RunWith(PowerMockRunner.class)
+@SuppressStaticInitializationFor(
+	"com.liferay.portal.kernel.util.ResourceBundleLoaderUtil"
+)
 public class DDMFormEvaluatorHelperTest {
 
 	@Before
 	public void setUp() throws Exception {
-		setPortalUtil();
 		setUpLanguageUtil();
+		setUpPortalUtil();
+		setUpResourceBundleLoaderUtil();
 	}
 
 	@Test
@@ -118,10 +136,13 @@ public class DDMFormEvaluatorHelperTest {
 		DDMFormEvaluatorContext ddmFormEvaluatorContext =
 			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
 
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
+
 		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
 			new DDMFormEvaluatorHelper(
-				null, null, _ddmExpressionFactory, ddmFormEvaluatorContext,
-				_jsonFactory, _userLocalService);
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+				_jsonFactory, null, null, _userLocalService);
 
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			ddmFormEvaluatorHelper.evaluate();
@@ -169,18 +190,35 @@ public class DDMFormEvaluatorHelperTest {
 			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
 
 		ddmFormEvaluatorContext.addProperty("request", _request);
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
 
-		when(
+		Mockito.when(
+			_roleLocalService.fetchRole(
+				Matchers.anyLong(), Matchers.anyString())
+		).thenReturn(
+			_role
+		);
+
+		Mockito.when(
+			_role.getType()
+		).thenReturn(
+			RoleConstants.TYPE_REGULAR
+		);
+
+		Mockito.when(
 			_userLocalService.hasRoleUser(
-				_company.getCompanyId(), "Role1", _user.getUserId(), true)
+				Matchers.anyLong(), Matchers.eq("Role1"), Matchers.anyLong(),
+				Matchers.eq(true))
 		).thenReturn(
 			true
 		);
 
 		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
 			new DDMFormEvaluatorHelper(
-				null, null, _ddmExpressionFactory, ddmFormEvaluatorContext,
-				_jsonFactory, _userLocalService);
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+				_jsonFactory, _roleLocalService, _userGroupRoleLocalService,
+				_userLocalService);
 
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			ddmFormEvaluatorHelper.evaluate();
@@ -224,12 +262,16 @@ public class DDMFormEvaluatorHelperTest {
 
 		ddmForm.addDDMFormRule(ddmFormRule);
 
+		DDMFormEvaluatorContext ddmFormEvaluatorContext =
+			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
+
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
+
 		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
 			new DDMFormEvaluatorHelper(
-				null, null, _ddmExpressionFactory,
-				new DDMFormEvaluatorContext(
-					ddmForm, ddmFormValues, LocaleUtil.US),
-				_jsonFactory, null);
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+				_jsonFactory, null, null, null);
 
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			ddmFormEvaluatorHelper.evaluate();
@@ -282,10 +324,13 @@ public class DDMFormEvaluatorHelperTest {
 		DDMFormEvaluatorContext ddmFormEvaluatorContext =
 			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
 
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
+
 		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
 			new DDMFormEvaluatorHelper(
-				null, null, _ddmExpressionFactory, ddmFormEvaluatorContext,
-				_jsonFactory, _userLocalService);
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+				_jsonFactory, null, null, _userLocalService);
 
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			ddmFormEvaluatorHelper.evaluate();
@@ -333,8 +378,9 @@ public class DDMFormEvaluatorHelperTest {
 			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
 
 		ddmFormEvaluatorContext.addProperty("request", _request);
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
 
-		when(
+		Mockito.when(
 			_userLocalService.hasRoleUser(
 				_company.getCompanyId(), "Role1", _user.getUserId(), true)
 		).thenReturn(
@@ -343,8 +389,10 @@ public class DDMFormEvaluatorHelperTest {
 
 		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
 			new DDMFormEvaluatorHelper(
-				null, null, _ddmExpressionFactory, ddmFormEvaluatorContext,
-				_jsonFactory, _userLocalService);
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+				_jsonFactory, _roleLocalService, _userGroupRoleLocalService,
+				_userLocalService);
 
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			ddmFormEvaluatorHelper.evaluate();
@@ -388,12 +436,16 @@ public class DDMFormEvaluatorHelperTest {
 
 		ddmForm.addDDMFormRule(ddmFormRule);
 
+		DDMFormEvaluatorContext ddmFormEvaluatorContext =
+			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
+
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
+
 		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
 			new DDMFormEvaluatorHelper(
-				null, null, _ddmExpressionFactory,
-				new DDMFormEvaluatorContext(
-					ddmForm, ddmFormValues, LocaleUtil.US),
-				_jsonFactory, null);
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+				_jsonFactory, null, null, null);
 
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			ddmFormEvaluatorHelper.evaluate();
@@ -421,12 +473,38 @@ public class DDMFormEvaluatorHelperTest {
 			DDMFormValuesTestUtil.createDDMFormFieldValue(
 				"field0_instanceId", "field0", new UnlocalizedValue("false")));
 
+		DDMFormEvaluatorContext ddmFormEvaluatorContext =
+			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
+
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
+
+		DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker =
+			Mockito.mock(DDMFormFieldTypeServicesTracker.class);
+
+		DDMFormFieldValueAccessor<?> ddmFormFieldValueAccessor =
+			new DefaultDDMFormFieldValueAccessor() {
+
+				@Override
+				public boolean isEmpty(
+					DDMFormFieldValue ddmFormFieldValue, Locale locale) {
+
+					return true;
+				}
+
+			};
+
+		Mockito.when(
+			ddmFormFieldTypeServicesTracker.getDDMFormFieldValueAccessor(
+				Matchers.eq("checkbox"))
+		).thenReturn(
+			(DDMFormFieldValueAccessor<Object>)ddmFormFieldValueAccessor
+		);
+
 		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
 			new DDMFormEvaluatorHelper(
-				null, null, _ddmExpressionFactory,
-				new DDMFormEvaluatorContext(
-					ddmForm, ddmFormValues, LocaleUtil.US),
-				_jsonFactory, null);
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				ddmFormFieldTypeServicesTracker, _jsonFactory, null, null,
+				null);
 
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			ddmFormEvaluatorHelper.evaluate();
@@ -475,12 +553,16 @@ public class DDMFormEvaluatorHelperTest {
 			DDMFormValuesTestUtil.createDDMFormFieldValue(
 				"field1_instanceId", "field1", new UnlocalizedValue("")));
 
+		DDMFormEvaluatorContext ddmFormEvaluatorContext =
+			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
+
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
+
 		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
 			new DDMFormEvaluatorHelper(
-				null, null, _ddmExpressionFactory,
-				new DDMFormEvaluatorContext(
-					ddmForm, ddmFormValues, LocaleUtil.US),
-				_jsonFactory, null);
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+				_jsonFactory, null, null, null);
 
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			ddmFormEvaluatorHelper.evaluate();
@@ -535,12 +617,16 @@ public class DDMFormEvaluatorHelperTest {
 			DDMFormValuesTestUtil.createDDMFormFieldValue(
 				"field1_instanceId", "field1", new UnlocalizedValue("")));
 
+		DDMFormEvaluatorContext ddmFormEvaluatorContext =
+			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
+
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
+
 		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
 			new DDMFormEvaluatorHelper(
-				null, null, _ddmExpressionFactory,
-				new DDMFormEvaluatorContext(
-					ddmForm, ddmFormValues, LocaleUtil.US),
-				_jsonFactory, null);
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+				_jsonFactory, null, null, null);
 
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			ddmFormEvaluatorHelper.evaluate();
@@ -580,12 +666,16 @@ public class DDMFormEvaluatorHelperTest {
 			DDMFormValuesTestUtil.createDDMFormFieldValue(
 				"field0_instanceId", "field0", new UnlocalizedValue("\n")));
 
+		DDMFormEvaluatorContext ddmFormEvaluatorContext =
+			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
+
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
+
 		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
 			new DDMFormEvaluatorHelper(
-				null, null, _ddmExpressionFactory,
-				new DDMFormEvaluatorContext(
-					ddmForm, ddmFormValues, LocaleUtil.US),
-				_jsonFactory, null);
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+				_jsonFactory, null, null, null);
 
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			ddmFormEvaluatorHelper.evaluate();
@@ -646,12 +736,16 @@ public class DDMFormEvaluatorHelperTest {
 
 		ddmForm.addDDMFormRule(ddmFormRule);
 
+		DDMFormEvaluatorContext ddmFormEvaluatorContext =
+			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
+
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
+
 		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
 			new DDMFormEvaluatorHelper(
-				null, null, _ddmExpressionFactory,
-				new DDMFormEvaluatorContext(
-					ddmForm, ddmFormValues, LocaleUtil.US),
-				_jsonFactory, null);
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+				_jsonFactory, null, null, null);
 
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			ddmFormEvaluatorHelper.evaluate();
@@ -743,12 +837,16 @@ public class DDMFormEvaluatorHelperTest {
 
 		ddmForm.addDDMFormRule(ddmFormRule);
 
+		DDMFormEvaluatorContext ddmFormEvaluatorContext =
+			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
+
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
+
 		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
 			new DDMFormEvaluatorHelper(
-				null, null, _ddmExpressionFactory,
-				new DDMFormEvaluatorContext(
-					ddmForm, ddmFormValues, LocaleUtil.US),
-				_jsonFactory, null);
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+				_jsonFactory, null, null, null);
 
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			ddmFormEvaluatorHelper.evaluate();
@@ -821,12 +919,16 @@ public class DDMFormEvaluatorHelperTest {
 			DDMFormValuesTestUtil.createDDMFormFieldValue(
 				"field0_instanceId", "field0", new UnlocalizedValue("1")));
 
+		DDMFormEvaluatorContext ddmFormEvaluatorContext =
+			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
+
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
+
 		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
 			new DDMFormEvaluatorHelper(
-				null, null, _ddmExpressionFactory,
-				new DDMFormEvaluatorContext(
-					ddmForm, ddmFormValues, LocaleUtil.US),
-				_jsonFactory, null);
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+				_jsonFactory, null, null, null);
 
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			ddmFormEvaluatorHelper.evaluate();
@@ -845,6 +947,60 @@ public class DDMFormEvaluatorHelperTest {
 
 		Assert.assertEquals(
 			"This field should be zero.",
+			ddmFormFieldEvaluationResult.getErrorMessage());
+		Assert.assertFalse(ddmFormFieldEvaluationResult.isValid());
+	}
+
+	@Test
+	public void testValidationExpressionWithNoErrorMessage() throws Exception {
+		DDMForm ddmForm = new DDMForm();
+
+		DDMFormField ddmFormField = createDDMFormField(
+			"field", "numeric", FieldConstants.INTEGER);
+
+		DDMFormFieldValidation ddmFormFieldValidation =
+			new DDMFormFieldValidation();
+
+		ddmFormFieldValidation.setExpression("field > 10");
+
+		ddmFormField.setDDMFormFieldValidation(ddmFormFieldValidation);
+
+		ddmForm.addDDMFormField(ddmFormField);
+
+		DDMFormValues ddmFormValues = new DDMFormValues(ddmForm);
+
+		ddmFormValues.addDDMFormFieldValue(
+			DDMFormValuesTestUtil.createDDMFormFieldValue(
+				"field_instanceId", "field", new UnlocalizedValue("1")));
+
+		DDMFormEvaluatorContext ddmFormEvaluatorContext =
+			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
+
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
+
+		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
+			new DDMFormEvaluatorHelper(
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+				_jsonFactory, null, null, null);
+
+		DDMFormEvaluationResult ddmFormEvaluationResult =
+			ddmFormEvaluatorHelper.evaluate();
+
+		Map<String, DDMFormFieldEvaluationResult>
+			ddmFormFieldEvaluationResultMap =
+				ddmFormEvaluationResult.getDDMFormFieldEvaluationResultsMap();
+
+		Assert.assertEquals(
+			ddmFormFieldEvaluationResultMap.toString(), 1,
+			ddmFormFieldEvaluationResultMap.size());
+
+		DDMFormFieldEvaluationResult ddmFormFieldEvaluationResult =
+			ddmFormEvaluationResult.geDDMFormFieldEvaluationResult(
+				"field", "field_instanceId");
+
+		Assert.assertEquals(
+			"This field is invalid.",
 			ddmFormFieldEvaluationResult.getErrorMessage());
 		Assert.assertFalse(ddmFormFieldEvaluationResult.isValid());
 	}
@@ -872,12 +1028,16 @@ public class DDMFormEvaluatorHelperTest {
 
 		ddmForm.addDDMFormRule(ddmFormRule);
 
+		DDMFormEvaluatorContext ddmFormEvaluatorContext =
+			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
+
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
+
 		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
 			new DDMFormEvaluatorHelper(
-				null, null, _ddmExpressionFactory,
-				new DDMFormEvaluatorContext(
-					ddmForm, ddmFormValues, LocaleUtil.US),
-				_jsonFactory, null);
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+				_jsonFactory, null, null, null);
 
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			ddmFormEvaluatorHelper.evaluate();
@@ -925,12 +1085,16 @@ public class DDMFormEvaluatorHelperTest {
 			DDMFormValuesTestUtil.createDDMFormFieldValue(
 				"field1_instanceId", "field1", new UnlocalizedValue("")));
 
+		DDMFormEvaluatorContext ddmFormEvaluatorContext =
+			new DDMFormEvaluatorContext(ddmForm, ddmFormValues, LocaleUtil.US);
+
+		ddmFormEvaluatorContext.addProperty("groupId", 1L);
+
 		DDMFormEvaluatorHelper ddmFormEvaluatorHelper =
 			new DDMFormEvaluatorHelper(
-				null, null, _ddmExpressionFactory,
-				new DDMFormEvaluatorContext(
-					ddmForm, ddmFormValues, LocaleUtil.US),
-				_jsonFactory, null);
+				null, _ddmExpressionFactory, ddmFormEvaluatorContext,
+				Mockito.mock(DDMFormFieldTypeServicesTracker.class),
+				_jsonFactory, null, null, null);
 
 		DDMFormEvaluationResult ddmFormEvaluationResult =
 			ddmFormEvaluatorHelper.evaluate();
@@ -1017,30 +1181,61 @@ public class DDMFormEvaluatorHelperTest {
 		return ddmFormFieldEvaluationResult;
 	}
 
-	protected void setPortalUtil() throws Exception {
-		PortalUtil portalUtil = new PortalUtil();
-
-		Portal portal = mock(Portal.class);
-
-		when(portal.getUser(_request)).thenReturn(_user);
-		when(portal.getCompany(_request)).thenReturn(_company);
-
-		portalUtil.setPortal(portal);
-	}
-
 	protected void setUpLanguageUtil() {
 		LanguageUtil languageUtil = new LanguageUtil();
 
-		_language = mock(Language.class);
+		_language = Mockito.mock(Language.class);
 
-		when(
+		Mockito.when(
 			_language.get(
-				Matchers.eq(Locale.US), Matchers.eq("this-field-is-required"))
+				Matchers.any(ResourceBundle.class),
+				Matchers.eq("this-field-is-invalid"))
+		).thenReturn(
+			"This field is invalid."
+		);
+
+		Mockito.when(
+			_language.get(
+				Matchers.any(ResourceBundle.class),
+				Matchers.eq("this-field-is-required"))
 		).thenReturn(
 			"This field is required."
 		);
 
 		languageUtil.setLanguage(_language);
+	}
+
+	protected void setUpPortalUtil() throws Exception {
+		PortalUtil portalUtil = new PortalUtil();
+
+		Portal portal = Mockito.mock(Portal.class);
+
+		Mockito.when(
+			portal.getUser(_request)
+		).thenReturn(
+			_user
+		);
+
+		Mockito.when(
+			portal.getCompany(_request)
+		).thenReturn(
+			_company
+		);
+
+		portalUtil.setPortal(portal);
+	}
+
+	protected void setUpResourceBundleLoaderUtil() {
+		PowerMockito.mockStatic(ResourceBundleLoaderUtil.class);
+
+		ResourceBundleLoader portalResourceBundleLoader = Mockito.mock(
+			ResourceBundleLoader.class);
+
+		Mockito.when(
+			ResourceBundleLoaderUtil.getPortalResourceBundleLoader()
+		).thenReturn(
+			portalResourceBundleLoader
+		);
 	}
 
 	@Mock
@@ -1055,7 +1250,16 @@ public class DDMFormEvaluatorHelperTest {
 	private HttpServletRequest _request;
 
 	@Mock
+	private Role _role;
+
+	@Mock
+	private RoleLocalService _roleLocalService;
+
+	@Mock
 	private User _user;
+
+	@Mock
+	private UserGroupRoleLocalService _userGroupRoleLocalService;
 
 	@Mock
 	private UserLocalService _userLocalService;

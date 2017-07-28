@@ -34,6 +34,34 @@ import org.junit.Test;
  */
 public abstract class BaseDDMFormFieldOptionsValidationTestCase {
 
+	@Test
+	public void testValidationWithNonRequiredOptionAndEmptyDefaultLocaleValue()
+		throws Exception {
+
+		DDMFormField ddmFormField = new DDMFormField("option", "select");
+
+		ddmFormField.setDataType("string");
+		ddmFormField.setRequired(false);
+
+		DDMFormFieldOptions ddmFormFieldOptions = new DDMFormFieldOptions();
+
+		ddmFormFieldOptions.addOptionLabel("A", LocaleUtil.US, "Option A");
+
+		ddmFormField.setDDMFormFieldOptions(ddmFormFieldOptions);
+
+		ddmFormField.setLocalizable(false);
+
+		DDMFormFieldValue ddmFormFieldValue =
+			DDMFormValuesTestUtil.createDDMFormFieldValue(
+				"option", new UnlocalizedValue(""));
+
+		DDMFormFieldValueValidator ddmFormFieldValueValidator =
+			getDDMFormFieldValueValidator();
+
+		ddmFormFieldValueValidator.validate(
+			ddmFormField, ddmFormFieldValue.getValue());
+	}
+
 	@Test(expected = DDMFormFieldValueValidationException.class)
 	public void testValidationWithNonRequiredOptionAndInvalidLocalizedValue()
 		throws Exception {
@@ -74,7 +102,8 @@ public abstract class BaseDDMFormFieldOptionsValidationTestCase {
 		DDMFormFieldValueValidator ddmFormFieldValueValidator =
 			getDDMFormFieldValueValidator();
 
-		ddmFormFieldValueValidator.validate(ddmFormField, ddmFormFieldValue);
+		ddmFormFieldValueValidator.validate(
+			ddmFormField, ddmFormFieldValue.getValue());
 	}
 
 	@Test(expected = DDMFormFieldValueValidationException.class)
@@ -102,7 +131,8 @@ public abstract class BaseDDMFormFieldOptionsValidationTestCase {
 		DDMFormFieldValueValidator ddmFormFieldValueValidator =
 			getDDMFormFieldValueValidator();
 
-		ddmFormFieldValueValidator.validate(ddmFormField, ddmFormFieldValue);
+		ddmFormFieldValueValidator.validate(
+			ddmFormField, ddmFormFieldValue.getValue());
 	}
 
 	@Test(expected = DDMFormFieldValueValidationException.class)
@@ -125,7 +155,8 @@ public abstract class BaseDDMFormFieldOptionsValidationTestCase {
 		DDMFormFieldValueValidator ddmFormFieldValueValidator =
 			getDDMFormFieldValueValidator();
 
-		ddmFormFieldValueValidator.validate(ddmFormField, ddmFormFieldValue);
+		ddmFormFieldValueValidator.validate(
+			ddmFormField, ddmFormFieldValue.getValue());
 	}
 
 	protected abstract DDMFormFieldValueValidator

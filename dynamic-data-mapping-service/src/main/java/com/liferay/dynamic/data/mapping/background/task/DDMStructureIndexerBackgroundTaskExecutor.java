@@ -65,7 +65,9 @@ public class DDMStructureIndexerBackgroundTaskExecutor
 		Map<String, Serializable> taskContextMap =
 			backgroundTask.getTaskContextMap();
 
-		long structureId = (long)taskContextMap.get("structureId");
+		Number structureIdNumber = (Number)taskContextMap.get("structureId");
+
+		long structureId = structureIdNumber.longValue();
 
 		DDMStructureIndexer structureIndexer = getDDMStructureIndexer(
 			structureId);
