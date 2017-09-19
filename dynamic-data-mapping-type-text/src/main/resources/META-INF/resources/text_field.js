@@ -18,9 +18,18 @@ AUI.add(
 		var TextField = A.Component.create(
 			{
 				ATTRS: {
+					autocompleteEnabled: {
+						state: true,
+						value: false
+					},
+
 					displayStyle: {
 						state: true,
 						value: 'singleline'
+					},
+
+					initialHeight: {
+						value: 0
 					},
 
 					options: {
@@ -49,14 +58,16 @@ AUI.add(
 							instance.after('optionsChange', instance._afterOptionsChange),
 							instance.after('valueChange', instance._onTextFieldValueChange)
 						);
-
-						instance.evaluate = A.debounce(
-							function() {
-								TextField.superclass.evaluate.apply(instance, arguments);
-							},
-							300
-						);
 					},
+
+					evaluate: A.debounce(
+						function() {
+							var instance = this;
+
+							TextField.superclass.evaluate.apply(instance, arguments);
+						},
+						300
+					),
 
 					getAutoComplete: function() {
 						var instance = this;
@@ -80,26 +91,19 @@ AUI.add(
 						return 'input';
 					},
 
-					getTextHeight: function() {
-						var instance = this;
-
-						var text = instance.getValue();
-
-						return text.split('\n').length;
-					},
-
 					render: function() {
 						var instance = this;
 
 						TextField.superclass.render.apply(instance, arguments);
 
-						var options = instance.get('options');
+						var autocompleteEnabled = instance.get('autocompleteEnabled');
 
-						if (options.length && instance.get('visible')) {
+						if (autocompleteEnabled && instance.get('visible')) {
 							instance._createAutocomplete();
 						}
 
 						if (instance.get('displayStyle') === 'multiline') {
+							instance._setInitialHeight();
 							instance.syncInputHeight();
 						}
 
@@ -123,32 +127,35 @@ AUI.add(
 
 						var inputNode = instance.getInputNode();
 
-						var height = instance.getTextHeight();
+						var initialHeight = instance.get('initialHeight');
 
-						if (height < 2) {
-							inputNode.set('rows', 2);
-						}
-						else {
-							inputNode.set('rows', height);
+						inputNode.setStyle('height', initialHeight);
+
+						var height = inputNode.get('scrollHeight');
+
+						if (height > initialHeight) {
+							inputNode.setStyle('height', height);
 						}
 					},
 
 					_afterOptionsChange: function(event) {
 						var instance = this;
 
-						var autoComplete = instance.getAutoComplete();
+						if (instance.get('autocompleteEnabled')) {
+							var autoComplete = instance.getAutoComplete();
 
-						if (!Util.compare(event.newVal, event.prevVal)) {
-							autoComplete.set('source', event.newVal);
+							if (!Util.compare(event.newVal, event.prevVal)) {
+								autoComplete.set('source', event.newVal);
 
-							autoComplete.fire(
-								'query',
-								{
-									inputValue: instance.getValue(),
-									query: instance.getValue(),
-									src: A.AutoCompleteBase.UI_SRC
-								}
-							);
+								autoComplete.fire(
+									'query',
+									{
+										inputValue: instance.getValue(),
+										query: instance.getValue(),
+										src: A.AutoCompleteBase.UI_SRC
+									}
+								);
+							}
 						}
 					},
 
@@ -183,6 +190,18 @@ AUI.add(
 						if (instance.get('displayStyle') === 'multiline') {
 							instance.syncInputHeight();
 						}
+					},
+
+					_setInitialHeight: function() {
+						var instance = this;
+
+						var inputNode = instance.getInputNode();
+
+						var initialHeightInPx = inputNode.getStyle('height');
+
+						var initialHeight = parseInt(initialHeightInPx, 10);
+
+						instance.set('initialHeight', initialHeight);
 					}
 				}
 			}

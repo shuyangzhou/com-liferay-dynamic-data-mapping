@@ -27,7 +27,6 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
 import com.liferay.portal.kernel.workflow.WorkflowDefinitionManager;
-import com.liferay.portal.kernel.workflow.WorkflowEngineManager;
 import com.liferay.portal.kernel.workflow.WorkflowException;
 
 import java.util.ArrayList;
@@ -39,6 +38,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Marcellus Tavares
@@ -69,9 +70,9 @@ public class WorkflowDefinitionsDataProvider implements DDMDataProvider {
 
 		data.add(
 			new KeyValuePair(
-				LanguageUtil.get(locale, "no-workflow"), "no-workflow"));
+				"no-workflow", LanguageUtil.get(locale, "no-workflow")));
 
-		if (!_workflowEngineManager.isDeployed()) {
+		if (_workflowDefinitionManager == null) {
 			return DDMDataProviderResponse.of(
 				DDMDataProviderResponseOutput.of(
 					"Default-Output", "list", data));
@@ -124,10 +125,11 @@ public class WorkflowDefinitionsDataProvider implements DDMDataProvider {
 	@Reference
 	private Portal _portal;
 
-	@Reference
+	@Reference(
+		cardinality = ReferenceCardinality.OPTIONAL,
+		policyOption = ReferencePolicyOption.GREEDY,
+		target = "(proxy.bean=false)"
+	)
 	private WorkflowDefinitionManager _workflowDefinitionManager;
-
-	@Reference
-	private WorkflowEngineManager _workflowEngineManager;
 
 }

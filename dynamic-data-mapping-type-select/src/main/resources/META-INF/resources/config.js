@@ -15,6 +15,7 @@
 							},
 							path: 'select_field.js',
 							requires: [
+								'aui-tooltip',
 								'liferay-ddm-form-field-select-search-support',
 								'liferay-ddm-form-field-select-template',
 								'liferay-ddm-form-renderer-field',
@@ -33,10 +34,7 @@
 							condition: {
 								trigger: 'liferay-ddm-form-renderer'
 							},
-							path: 'select.soy.js',
-							requires: [
-								'soyutils'
-							]
+							path: 'select.js'
 						}
 					},
 					root: MODULE_PATH + '/'

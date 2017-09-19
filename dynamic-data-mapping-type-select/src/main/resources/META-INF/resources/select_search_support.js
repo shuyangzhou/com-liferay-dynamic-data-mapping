@@ -29,7 +29,7 @@ AUI.add(
 
 				var searchInputNode = instance._getInputSearch();
 
-				var options = instance.get('context').options;
+				var options = instance.get('options');
 
 				instance._renderList(options);
 
@@ -90,9 +90,13 @@ AUI.add(
 			_getTemplate: function(context) {
 				var instance = this;
 
-				var renderer = SoyTemplateUtil.getTemplateRenderer('ddm.select_options');
+				var renderer = SoyTemplateUtil.getTemplateRenderer('DDMSelect.select_options');
 
-				return renderer(context);
+				var container = document.createDocumentFragment();
+
+				new renderer(context, container);
+
+				return container.firstChild.outerHTML;
 			},
 
 			_renderList: function(options) {
@@ -102,6 +106,7 @@ AUI.add(
 					{
 						multiple: instance.get('multiple'),
 						options: options,
+						strings: instance.get('strings'),
 						value: instance.getValueSelected()
 					}
 				);

@@ -1,4 +1,8 @@
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+
 configJSModules {
+	dependsOn = []
 	enabled = false
 }
 
@@ -12,6 +16,7 @@ dependencies {
 	provided group: "org.json", name: "json", version: "20090211"
 	provided group: "org.skyscreamer", name: "jsonassert", version: "1.2.3"
 
+	testCompile group: "com.liferay", name: "com.liferay.portal.search.test.util", version: "1.1.0-20170427.050203-1"
 	testCompile group: "com.liferay.portal", name: "com.liferay.util.java", version: "2.0.0"
 	testCompile group: "commons-collections", name: "commons-collections", version: "3.2.2"
 	testCompile group: "commons-lang", name: "commons-lang", version: "2.6"
@@ -33,6 +38,7 @@ dependencies {
 	testCompile project(":apps:forms-and-workflow:dynamic-data-mapping:dynamic-data-mapping-type-checkbox")
 	testCompile project(":apps:forms-and-workflow:dynamic-data-mapping:dynamic-data-mapping-type-checkbox-multiple")
 	testCompile project(":apps:forms-and-workflow:dynamic-data-mapping:dynamic-data-mapping-type-date")
+	testCompile project(":apps:forms-and-workflow:dynamic-data-mapping:dynamic-data-mapping-type-document-library")
 	testCompile project(":apps:forms-and-workflow:dynamic-data-mapping:dynamic-data-mapping-type-grid")
 	testCompile project(":apps:forms-and-workflow:dynamic-data-mapping:dynamic-data-mapping-type-key-value")
 	testCompile project(":apps:forms-and-workflow:dynamic-data-mapping:dynamic-data-mapping-type-numeric")
@@ -42,7 +48,7 @@ dependencies {
 	testCompile project(":apps:forms-and-workflow:dynamic-data-mapping:dynamic-data-mapping-type-text")
 	testCompile project(":apps:forms-and-workflow:dynamic-data-mapping:dynamic-data-mapping-validator")
 
-	testIntegrationCompile group: "com.liferay", name: "com.liferay.arquillian.extension.junit.bridge", version: "1.0.7"
+	testIntegrationCompile group: "com.liferay", name: "com.liferay.arquillian.extension.junit.bridge", version: "1.0.8"
 	testIntegrationCompile group: "com.liferay", name: "com.liferay.portal.upgrade", version: "2.0.0"
 	testIntegrationCompile group: "com.liferay", name: "com.liferay.registry.api", version: "1.0.0"
 	testIntegrationCompile group: "javax.servlet", name: "javax.servlet-api", version: "3.0.1"

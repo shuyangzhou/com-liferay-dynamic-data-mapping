@@ -14,6 +14,8 @@
 
 package com.liferay.dynamic.data.mapping.form.renderer.internal;
 
+import com.google.template.soy.data.SanitizedContent;
+
 import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormEvaluationResult;
 import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormEvaluator;
 import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormEvaluatorContext;
@@ -37,6 +39,7 @@ import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.ReflectionUtil;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.util.PortalImpl;
 
@@ -200,9 +203,12 @@ public class DDMFormTemplateContextFactoryTest extends PowerMockito {
 			"<label class=\"required-warning\">All fields marked with '*' " +
 				"are required.</label>";
 
+		SanitizedContent sanitizedContent =
+			(SanitizedContent)templateContext.get(
+				"requiredFieldsWarningMessageHTML");
+
 		Assert.assertEquals(
-			expectedRequiredFieldsWarningHTML,
-			templateContext.get("requiredFieldsWarningMessageHTML"));
+			expectedRequiredFieldsWarningHTML, sanitizedContent.getContent());
 	}
 
 	@Test
@@ -350,7 +356,7 @@ public class DDMFormTemplateContextFactoryTest extends PowerMockito {
 
 		// Paginated form
 
-		ddmFormLayout.setPaginationMode(DDMFormLayout.WIZARD_MODE);
+		ddmFormLayout.setPaginationMode(StringPool.BLANK);
 
 		templateContext = _ddmFormTemplateContextFactory.create(
 			DDMFormTestUtil.createDDMForm(), ddmFormLayout,
@@ -358,6 +364,17 @@ public class DDMFormTemplateContextFactoryTest extends PowerMockito {
 
 		Assert.assertEquals(
 			"ddm.paginated_form", templateContext.get("templateNamespace"));
+
+		// Wizard form
+
+		ddmFormLayout.setPaginationMode(DDMFormLayout.WIZARD_MODE);
+
+		templateContext = _ddmFormTemplateContextFactory.create(
+			DDMFormTestUtil.createDDMForm(), ddmFormLayout,
+			new DDMFormRenderingContext());
+
+		Assert.assertEquals(
+			"ddm.wizard_form", templateContext.get("templateNamespace"));
 	}
 
 	protected void setDeclaredField(

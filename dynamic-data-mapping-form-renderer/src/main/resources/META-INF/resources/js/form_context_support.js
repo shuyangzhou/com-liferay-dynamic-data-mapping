@@ -12,6 +12,17 @@ AUI.add(
 		};
 
 		FormContextSupport.ATTRS = {
+			context: {
+				getter: '_getContext',
+				setter: function(val) {
+					if (A.Lang.isString(val)) {
+						return JSON.parse(val);
+					}
+					return val;
+				},
+				valueFn: '_valueContext'
+			},
+
 			fields: {
 				valueFn: '_valueFields'
 			},
@@ -55,7 +66,6 @@ AUI.add(
 					context,
 					{
 						context: A.clone(context),
-						fieldName: name,
 						parent: instance,
 						portletNamespace: instance.get('portletNamespace'),
 						repeatedIndex: repeatedIndex
@@ -106,6 +116,55 @@ AUI.add(
 				return fields;
 			},
 
+			_getContext: function(context) {
+				var instance = this;
+
+				var visitor = instance.get('visitor');
+
+				visitor.set('pages', context.pages);
+
+				visitor.set(
+					'fieldHandler',
+					function(fieldContext, args, columnFieldContexts) {
+						var field = instance.getField(fieldContext.fieldName, fieldContext.instanceId);
+
+						if (field) {
+							var repeatedSiblings = field.getRepeatedSiblings();
+
+							repeatedSiblings.forEach(
+								function(repeatedSibling) {
+									var repeatedContext = repeatedSibling.get('context');
+
+									if (repeatedSibling) {
+										var foundFieldContext = AArray.find(
+											columnFieldContexts,
+											function(columnFieldContext) {
+												if (columnFieldContext.fieldName === repeatedContext.fieldName &&
+														columnFieldContext.instanceId === repeatedContext.instanceId) {
+
+													return true;
+												}
+											}
+										);
+
+										if (foundFieldContext) {
+											A.mix(foundFieldContext, repeatedContext, true);
+										}
+										else {
+											columnFieldContexts.push(repeatedContext);
+										}
+									}
+								}
+							);
+						}
+					}
+				);
+
+				visitor.visit();
+
+				return context;
+			},
+
 			_onContextChange: function(event) {
 				var instance = this;
 
@@ -131,13 +190,7 @@ AUI.add(
 			_valueVisitor: function() {
 				var instance = this;
 
-				var context = instance.get('context');
-
-				return new Liferay.DDM.LayoutVisitor(
-					{
-						pages: context.pages
-					}
-				);
+				return new Liferay.DDM.LayoutVisitor();
 			}
 		};
 

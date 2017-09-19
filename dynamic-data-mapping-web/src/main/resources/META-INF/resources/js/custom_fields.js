@@ -3,6 +3,8 @@ AUI.add(
 	function(A) {
 		var AArray = A.Array;
 
+		var AEscape = A.Escape;
+
 		var FormBuilderTextField = A.FormBuilderTextField;
 		var FormBuilderTypes = A.FormBuilderField.types;
 
@@ -61,6 +63,20 @@ AUI.add(
 				'<label class="control-label">' + A.Escape.html(Liferay.Language.get('image-description')) + '</label>' +
 				'<input class="field form-control" type="text" value="" disabled>' +
 			'</div>';
+
+		CSS_RADIO = A.getClassName('radio'),
+		CSS_FIELD = A.getClassName('field'),
+		CSS_FIELD_CHOICE = A.getClassName('field', 'choice'),
+		CSS_FIELD_RADIO = A.getClassName('field', 'radio'),
+		CSS_FORM_BUILDER_FIELD = A.getClassName('form-builder-field'),
+		CSS_FORM_BUILDER_FIELD_NODE = A.getClassName('form-builder-field', 'node'),
+		CSS_FORM_BUILDER_FIELD_OPTIONS_CONTAINER = A.getClassName('form-builder-field', 'options', 'container'),
+
+		TPL_OPTIONS_CONTAINER = '<div class="' + CSS_FORM_BUILDER_FIELD_OPTIONS_CONTAINER + '"></div>',
+		TPL_RADIO =
+			'<div class="' + CSS_RADIO + '"><label class="radio-inline" for="{id}"><input id="{id}" class="' +
+			[CSS_FIELD, CSS_FIELD_CHOICE, CSS_FIELD_RADIO, CSS_FORM_BUILDER_FIELD_NODE].join(' ') +
+			'" name="{name}" type="radio" value="{value}" {checked} {disabled} />{label}</label></div>';
 
 		var UNIQUE_FIELD_NAMES_MAP = Liferay.FormBuilder.UNIQUE_FIELD_NAMES_MAP;
 
@@ -237,11 +253,10 @@ AUI.add(
 
 						var portletNamespace = instance.get('portletNamespace');
 
-						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getSiteAdminURL());
+						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getLayoutRelativeControlPanelURL());
 
 						portletURL.setParameter('criteria', 'com.liferay.item.selector.criteria.file.criterion.FileItemSelectorCriterion');
 						portletURL.setParameter('itemSelectedEventName', portletNamespace + 'selectDocumentLibrary');
-						portletURL.setParameter('p_p_auth', container.getData('itemSelectorAuthToken'));
 
 						var criterionJSON = {
 							desiredItemSelectorReturnTypes: 'com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType'
@@ -266,7 +281,7 @@ AUI.add(
 					_getUploadURL: function() {
 						var instance = this;
 
-						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getSiteAdminURL());
+						var portletURL = Liferay.PortletURL.createURL(themeDisplay.getLayoutRelativeControlPanelURL());
 
 						portletURL.setLifecycle(Liferay.PortletURL.ACTION_PHASE);
 						portletURL.setParameter('cmd', 'add_temp');
@@ -1007,7 +1022,7 @@ AUI.add(
 				'keyword': Liferay.Language.get('yes')
 			};
 
-			if (type == 'text') {
+			if (type == 'ddm-image' || type == 'text') {
 				indexTypeOptions = {
 					'': Liferay.Language.get('not-indexable'),
 					'keyword': Liferay.Language.get('indexable-keyword'),
@@ -1377,6 +1392,10 @@ AUI.add(
 
 					fieldNamespace: {
 						value: 'ddm'
+					},
+
+					indexType: {
+						value: 'text'
 					}
 				},
 
@@ -1494,6 +1513,72 @@ AUI.add(
 						var templateNode = instance.get('templateNode');
 
 						applyStyles(templateNode, val);
+					}
+				}
+			}
+		);
+
+		var DDMRadioField = A.Component.create(
+			{
+				ATTRS: {
+					dataType: {
+						value: 'radio'
+					},
+
+					predefinedValue: {
+						setter: function(val) {
+							return val;
+						}
+					}
+				},
+
+				EXTENDS: A.FormBuilderRadioField,
+
+				NAME: 'ddm-radio',
+
+				OVERRIDE_TYPE: 'radio',
+
+				prototype: {
+					_uiSetPredefinedValue: function(val) {
+						var instance = this,
+							optionNodes = instance.optionNodes;
+
+						if (!optionNodes) {
+							return;
+						}
+
+						optionNodes.set('checked', false);
+
+						optionNodes.all('input[value="' + AEscape.html(val) + '"]').set('checked', true);
+					},
+
+					_uiSetOptions: function(val) {
+						var instance = this,
+							buffer = [],
+							counter = 0,
+							predefinedValue = instance.get('predefinedValue'),
+							templateNode = instance.get('templateNode');
+
+						A.each(val, function(item) {
+							var checked = predefinedValue === item.value;
+
+							buffer.push(
+								Lang.sub(
+									TPL_RADIO, {
+										checked: checked ? 'checked="checked"' : '',
+										disabled: instance.get('disabled') ? 'disabled="disabled"' : '',
+										id: AEscape.html(instance.get('id') + counter++),
+										label: AEscape.html(item.label),
+										name: AEscape.html(instance.get('name')),
+										value: AEscape.html(item.value)
+									}
+								)
+							);
+						});
+
+						instance.optionNodes = A.NodeList.create(buffer.join(''));
+
+						templateNode.setContent(instance.optionNodes);
 					}
 				}
 			}
@@ -1675,6 +1760,7 @@ AUI.add(
 			DDMLinkToPageField,
 			DDMNumberField,
 			DDMParagraphField,
+			DDMRadioField,
 			DDMSeparatorField,
 			DDMHTMLTextField,
 			DDMTextAreaField
@@ -1682,7 +1768,7 @@ AUI.add(
 
 		plugins.forEach(
 			function(item, index) {
-				FormBuilderTypes[item.NAME] = item;
+				FormBuilderTypes[item.OVERRIDE_TYPE || item.NAME] = item;
 			}
 		);
 	},

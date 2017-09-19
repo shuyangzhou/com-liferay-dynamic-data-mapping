@@ -1,10 +1,6 @@
 apply plugin: "com.liferay.gulp"
 apply plugin: "com.liferay.lang.merger"
 
-configJSModules {
-	includes = ["**/*.es.js*"]
-}
-
 dependencies {
 	provided group: "com.liferay", name: "com.liferay.dynamic.data.mapping.io", version: "2.0.0"
 	provided group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "2.0.0"
@@ -17,19 +13,6 @@ dependencies {
 	testCompile group: "com.liferay", name: "com.liferay.dynamic.data.mapping.test.util", version: "2.0.0"
 }
 
-task testJS
-
-testJS {
-	dependsOn gulpTest
-}
-
-transpileJS {
-	soySrcIncludes = ""
-	srcIncludes = "**/*.es.js"
-}
-
-wrapSoyAlloyTemplate {
-	enabled = true
-	moduleName = "liferay-ddm-form-field-fieldset-template"
-	namespace = "ddm"
+node {
+	nodeVersion = "8.4.0"
 }

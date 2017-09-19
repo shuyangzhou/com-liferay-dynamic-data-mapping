@@ -1,9 +1,5 @@
 apply plugin: "com.liferay.gulp"
 
-configJSModules {
-	includes = ["**/*.es.js*"]
-}
-
 dependencies {
 	provided group: "com.liferay", name: "com.liferay.dynamic.data.mapping.type.text", version: "2.0.0"
 	provided group: "com.liferay.portal", name: "com.liferay.portal.kernel", version: "2.0.0"
@@ -14,19 +10,6 @@ dependencies {
 	provided project(":apps:forms-and-workflow:dynamic-data-mapping:dynamic-data-mapping-form-field-type")
 }
 
-task testJS
-
-testJS {
-	dependsOn gulpTest
-}
-
-transpileJS {
-	soySrcIncludes = ""
-	srcIncludes = "**/*.es.js"
-}
-
-wrapSoyAlloyTemplate {
-	enabled = true
-	moduleName = "liferay-ddm-form-field-key-value-template"
-	namespace = "ddm"
+node {
+	nodeVersion = "8.4.0"
 }
