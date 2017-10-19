@@ -70,7 +70,6 @@ describe(
 		before(
 			function(done) {
 				AUI().use(
-					'liferay-ddm-form-field-grid-template',
 					'liferay-ddm-form-field-grid',
 					function(A) {
 						Liferay.DDM.Renderer.FieldTypes.register(
@@ -101,7 +100,7 @@ describe(
 
 						var container = gridField.get('container');
 
-						assert.isNotNull(container.one('.help-block'), 'The selectField has an error');
+						assert.isNotNull(container.one('.form-feedback-indicator'), 'The selectField has an error');
 
 						done();
 					}

@@ -1,8 +1,6 @@
 AUI.add(
 	'liferay-ddm-form-builder-rule-builder',
 	function(A) {
-		var Settings = Liferay.DDM.Settings;
-
 		var SoyTemplateUtil = Liferay.DDM.SoyTemplateUtil;
 
 		var MAP_ACTION_DESCRIPTIONS = {
@@ -256,7 +254,7 @@ AUI.add(
 						};
 
 						A.io.request(
-							Settings.getDataProviderInstancesURL,
+							Liferay.DDM.Settings.getDataProviderInstancesURL,
 							{
 								data: payload,
 								method: 'GET',
@@ -279,15 +277,13 @@ AUI.add(
 						var actionKey = MAP_ACTION_DESCRIPTIONS[type];
 
 						if (actionKey) {
-							var data;
-
 							if (type === 'jump-to-page') {
 								var pages = instance.getPages();
 
 								return {
-									type: 'jumptopage',
-									param0: pages[action.target].label
-								}
+									param0: pages[action.target].label,
+									type: 'jumptopage'
+								};
 							}
 							else if (type === 'auto-fill') {
 								var fieldListDescription = [];
@@ -297,25 +293,23 @@ AUI.add(
 								}
 
 								return {
-									type: 'autofill',
 									param0: fieldListDescription,
-									param1: instance._getDataProviderLabel(action.ddmDataProviderInstanceUUID)
-								}
+									param1: instance._getDataProviderLabel(action.ddmDataProviderInstanceUUID),
+									type: 'autofill'
+								};
 							}
 							else if (type === 'calculate') {
 
 								return {
-									type: type,
 									param0: action.expression.replace(/\[|\]/g, ''),
-									param1: instance._getFieldLabel(action.target)
-								}
+									param1: instance._getFieldLabel(action.target),
+									type: type
+								};
 							}
-							else {
-								return {
-									type: type,
-									param0: action.label
-								}
-							}
+							return {
+								param0: action.label,
+								type: type
+							};
 						}
 
 						return {};
@@ -399,7 +393,7 @@ AUI.add(
 
 						if (!roles.length) {
 							A.io.request(
-								Settings.getRolesURL,
+								Liferay.DDM.Settings.getRolesURL,
 								{
 									data: payload,
 									method: 'GET',

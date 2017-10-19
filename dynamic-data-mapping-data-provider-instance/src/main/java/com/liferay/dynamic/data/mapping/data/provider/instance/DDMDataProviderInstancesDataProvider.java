@@ -22,10 +22,12 @@ import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderResponse;
 import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderResponseOutput;
 import com.liferay.dynamic.data.mapping.model.DDMDataProviderInstance;
 import com.liferay.dynamic.data.mapping.service.DDMDataProviderInstanceLocalService;
-import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.KeyValuePair;
+import com.liferay.portal.kernel.util.LocaleThreadLocal;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.WebKeys;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,11 +66,8 @@ public class DDMDataProviderInstancesDataProvider implements DDMDataProvider {
 			HttpServletRequest request =
 				ddmDataProviderRequest.getHttpServletRequest();
 
-			ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
 			long[] groupIds = _portal.getCurrentAndAncestorSiteGroupIds(
-				themeDisplay.getScopeGroupId());
+				ParamUtil.getLong(request, "scopeGroupId"));
 
 			List<DDMDataProviderInstance> ddmDataProviderInstances =
 				_ddmDataProviderInstanceLocalService.getDataProviderInstances(
@@ -79,14 +78,16 @@ public class DDMDataProviderInstancesDataProvider implements DDMDataProvider {
 
 				long value =
 					ddmDataProviderInstance.getDataProviderInstanceId();
-
 				String label = ddmDataProviderInstance.getName(
-					themeDisplay.getLocale());
+					LocaleThreadLocal.getThemeDisplayLocale());
 
 				data.add(new KeyValuePair(String.valueOf(value), label));
 			}
 		}
 		catch (Exception e) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(e, e);
+			}
 		}
 
 		return DDMDataProviderResponse.of(
@@ -97,6 +98,9 @@ public class DDMDataProviderInstancesDataProvider implements DDMDataProvider {
 	public Class<?> getSettings() {
 		throw new UnsupportedOperationException();
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		DDMDataProviderInstancesDataProvider.class);
 
 	@Reference
 	private DDMDataProviderInstanceLocalService

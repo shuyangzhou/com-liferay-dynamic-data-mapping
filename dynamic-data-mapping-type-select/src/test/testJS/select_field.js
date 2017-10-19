@@ -33,7 +33,6 @@ describe(
 		before(
 			function(done) {
 				AUI().use(
-					'liferay-ddm-form-field-select-template',
 					'liferay-ddm-form-field-select',
 					function(A) {
 						Liferay.DDM.Renderer.FieldTypes.register(
@@ -69,7 +68,7 @@ describe(
 						var container = selectField.get('container');
 
 						assert.isNotNull(
-							container.one('.help-block'),
+							container.one('.form-feedback-indicator'),
 							'The selectField has an error'
 						);
 
