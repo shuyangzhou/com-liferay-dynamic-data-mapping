@@ -18,15 +18,6 @@ AUI.add(
 		var CheckboxMultipleField = A.Component.create(
 			{
 				ATTRS: {
-
-					showAsSwitcher: {
-						value: false
-					},
-
-					type: {
-						value: 'checkbox_multiple'
-					},
-
 					inline: {
 						value: true
 					},
@@ -35,8 +26,15 @@ AUI.add(
 						getter: '_getOptions',
 						validator: Array.isArray,
 						value: []
-					}
+					},
 
+					showAsSwitcher: {
+						value: false
+					},
+
+					type: {
+						value: 'checkbox_multiple'
+					}
 				},
 
 				EXTENDS: Liferay.DDM.Renderer.Field,
@@ -57,12 +55,6 @@ AUI.add(
 						);
 					},
 
-					_getOptions: function(options) {
-						var instance = this;
-
-						return options || [];
-					},
-
 					getValue: function() {
 						var instance = this;
 
@@ -72,9 +64,9 @@ AUI.add(
 
 						container.all(instance.getInputSelector()).each(
 							function(optionNode) {
-								var isChecked = !!optionNode.attr('checked');
+								var checked = !!optionNode.attr('checked');
 
-								if (isChecked) {
+								if (checked) {
 									values.push(optionNode.val());
 								}
 							}
@@ -93,6 +85,7 @@ AUI.add(
 						for (var i = 0; i < checkboxNodeList.length; i++) {
 							if (value.includes(checkboxNodeList[i].val())) {
 								var node = checkboxNodeList[i];
+
 								node.attr('checked', true);
 							}
 						}
@@ -101,11 +94,19 @@ AUI.add(
 					showErrorMessage: function() {
 						var instance = this;
 
-						var container = instance.get('container');
-
 						CheckboxMultipleField.superclass.showErrorMessage.apply(instance, arguments);
 
-						container.all('.help-block').appendTo(container);
+						var container = instance.get('container');
+
+						var formGroup = container.one('.form-group');
+
+						formGroup.insert(container.one('.form-feedback-indicator'), 'after');
+					},
+
+					_getOptions: function(options) {
+						var instance = this;
+
+						return options || [];
 					}
 				}
 			}

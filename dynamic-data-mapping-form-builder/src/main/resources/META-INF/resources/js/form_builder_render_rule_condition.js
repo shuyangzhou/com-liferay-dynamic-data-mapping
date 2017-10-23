@@ -9,8 +9,6 @@ AUI.add(
 
 		var CSS_CAN_REMOVE_ITEM = A.getClassName('can', 'remove', 'item');
 
-		var Settings = Liferay.DDM.Settings;
-
 		var FormBuilderRenderRuleCondition = function(config) {};
 
 		FormBuilderRenderRuleCondition.ATTRS = {
@@ -563,8 +561,8 @@ AUI.add(
 			_renderSecondOperandSelectOptions: function(index, condition, container) {
 				var instance = this;
 
-				var value = [];
 				var options = [];
+				var value = [];
 
 				var visible = instance._isConstant(instance._getSecondOperandTypeValue(index)) &&
 					instance._isFieldList(instance._getFirstOperand(index));
@@ -667,7 +665,7 @@ AUI.add(
 
 				var operator = instance._getOperator(conditionIndex);
 
-				var operatorTypes = Settings.functionsMetadata;
+				var operatorTypes = Liferay.DDM.Settings.functionsMetadata;
 
 				var options = [];
 
