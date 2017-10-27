@@ -1,10 +1,11 @@
 @import "bourbon";
-@import "field-type-validation";
+@import "utilities";
+@import "field-type-checkbox-switch";
 
 %flex-space-between {
-align-items: center;
-display: flex;
-justify-content: space-between;
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
 }
 
 %text-ellipsis {
@@ -191,9 +192,11 @@ justify-content: space-between;
 	}
 }
 
-//┌──────────────────┐
-//│ DDM Select Field │
-//└──────────────────┘
+.form-builder-layout {
+	.input-group .form-control {
+		z-index: initial;
+	}
+}
 
 .form-builder-select-field {
 	position: relative;
@@ -233,17 +236,10 @@ justify-content: space-between;
 
 	.select-field-trigger {
 		@extend %flex-space-between;
-		border-bottom: 2px solid #869CAD;
-		color: #869CAD;
-		padding: 3px 0 3px 5px;
 
 		.option-selected {
 			@extend %text-ellipsis;
 			overflow: hidden;
-		}
-
-		.option-selected-placeholder {
-			color: rgba(134, 156, 173, 0.4);
 		}
 	}
 
@@ -353,10 +349,6 @@ justify-content: space-between;
 		}
 	}
 }
-
-//┌───────────────┐
-//│ DDM Field Set │
-//└───────────────┘
 
 .liferay-ddm-form-field-fieldset {
 	margin-bottom: 0 !important;

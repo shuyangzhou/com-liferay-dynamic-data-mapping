@@ -37,8 +37,6 @@ AUI.add(
 
 		var CSS_PAGE_HEADER_TITLE_HIDE_BORDER = A.getClassName('form', 'builder', 'page', 'header', 'title', 'hide', 'border');
 
-		var Settings = Liferay.DDM.Settings;
-
 		var FormBuilderPagesManager = A.Component.create(
 			{
 				ATTRS: {
@@ -68,6 +66,10 @@ AUI.add(
 					mode: {
 						validator: '_validateMode',
 						value: 'wizard'
+					},
+
+					showPagination: {
+						value: true
 					},
 
 					strings: {
@@ -170,7 +172,7 @@ AUI.add(
 							successPageTitle.after('valueChange', A.bind('_afterSuccessPageTitleChange', instance), instance)
 						];
 
-						if (!Settings.showPagination) {
+						if (!instance.get('showPagination')) {
 							instance._hidePagination();
 						}
 
@@ -409,11 +411,11 @@ AUI.add(
 						var instance = this;
 
 						var activePageNumber = instance.get('activePageNumber');
-						var editingLanguageId = instance.get('editingLanguageId');
 						var defaultLanguageId = instance.get('defaultLanguageId');
+						var editingLanguageId = instance.get('editingLanguageId');
 
-						var localizedTitles = instance.get('localizedTitles');
 						var localizedDescriptions = instance.get('localizedDescriptions');
+						var localizedTitles = instance.get('localizedTitles');
 
 						var activePageIndex = activePageNumber - 1;
 
@@ -459,8 +461,8 @@ AUI.add(
 
 						instance._createTitleForEditingLanguageId();
 
-						var editingLanguageId = instance.get('editingLanguageId');
 						var defaultLanguageId = instance.get('defaultLanguageId');
+						var editingLanguageId = instance.get('editingLanguageId');
 
 						var localizedTitles = instance.get('localizedTitles');
 
@@ -624,8 +626,8 @@ AUI.add(
 						var instance = this;
 
 						var activePageNumber = instance.get('activePageNumber');
-						var editingLanguageId = instance.get('editingLanguageId');
 						var descriptions = instance.get('descriptions');
+						var editingLanguageId = instance.get('editingLanguageId');
 						var localizedDescriptions = instance.get('localizedDescriptions');
 
 						var description = event.newVal.trim();
@@ -746,8 +748,8 @@ AUI.add(
 
 						var activePageNumber = instance.get('activePageNumber');
 						var editingLanguageId = instance.get('editingLanguageId');
-						var titles = instance.get('titles');
 						var localizedTitles = instance.get('localizedTitles');
+						var titles = instance.get('titles');
 
 						var title = event.newVal.trim();
 
@@ -988,8 +990,8 @@ AUI.add(
 
 						var successPage = boundingBox.one('.' + CSS_FORM_BUILDER_SUCCESS_PAGE);
 
-						var editingLanguageId = instance.get('editingLanguageId');
 						var defaultLanguageId = instance.get('defaultLanguageId');
+						var editingLanguageId = instance.get('editingLanguageId');
 
 						var successPageSettings = instance.get('successPageSettings');
 
@@ -1022,11 +1024,11 @@ AUI.add(
 
 						instance._createTitleForEditingLanguageId();
 
-						var editingLanguageId = instance.get('editingLanguageId');
 						var defaultLanguageId = instance.get('defaultLanguageId');
+						var editingLanguageId = instance.get('editingLanguageId');
 
-						var titles = instance.get('localizedTitles');
 						var descriptions = instance.get('localizedDescriptions');
+						var titles = instance.get('localizedTitles');
 
 						var pageHeader = instance.get('pageHeader');
 

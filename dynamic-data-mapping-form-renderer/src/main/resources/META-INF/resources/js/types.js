@@ -41,7 +41,9 @@ AUI.add(
 						defaultConfig: {
 							type: config.name
 						},
+						description: config.description,
 						fieldClass: Liferay.DDM.Renderer.Field,
+						group: config.group,
 						icon: config.icon,
 						label: config.label
 					}
