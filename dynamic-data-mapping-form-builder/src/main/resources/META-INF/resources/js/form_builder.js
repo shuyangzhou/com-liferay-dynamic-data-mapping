@@ -23,8 +23,6 @@ AUI.add(
 
 		var CSS_ROW_CONTAINER_ROW = A.getClassName('layout', 'row', 'container', 'row');
 
-		var MAXIMUM_COLS_PER_ROW = 12;
-
 		var TPL_CONFIRM_CANCEL_FIELD_EDITION = '<p>' + Liferay.Language.get('are-you-sure-you-want-to-cancel') + '</p>';
 
 		var TPL_REQURIED_FIELDS = '<label class="hide required-warning">{message}</label>';
@@ -269,52 +267,60 @@ AUI.add(
 					createFieldSet: function(fieldSetDefinition) {
 						var instance = this;
 
-						var layout = instance.getActiveLayout();
+						var visitor = new Liferay.DDM.LayoutVisitor();
 
-						fieldSetDefinition.pages.forEach(
-							function(page) {
+						visitor.set('pages', fieldSetDefinition.pages);
 
-								page.rows.forEach(
-									function(row) {
-										var columns = row.columns;
-										var layoutColumns = [];
+						var fieldColumns = [];
 
-										columns.forEach(
-											function(column) {
-												var fieldColumns = [];
+						visitor.set(
+							'fieldHandler',
+							function(fieldContext) {
+								var field = instance.createFieldFromContext(fieldContext);
 
-												column.fields.forEach(
-													function(fieldContext) {
-														var field = instance.createFieldFromContext(fieldContext);
+								fieldColumns.push(field);
 
-														fieldColumns.push(field);
-
-														field.render();
-													}
-												);
-
-												var layoutColumn = new A.LayoutCol(
-													{
-														size: MAXIMUM_COLS_PER_ROW / columns.length,
-														value: new Liferay.DDM.FormBuilderFieldList(
-															{
-																fields: fieldColumns
-															}
-														)
-													}
-												);
-
-												layoutColumns.push(layoutColumn);
-											}
-										);
-
-										var layoutRow = new A.LayoutRow({cols: layoutColumns});
-
-										layout.addRow(instance._currentRowIndex(), layoutRow);
-									}
-								);
+								field.render();
 							}
 						);
+
+						var layoutColumns = [];
+
+						visitor.set(
+							'columnHandler',
+							function(column) {
+								var layoutColumn = new A.LayoutCol(
+									{
+										size: column.size,
+										value: new Liferay.DDM.FormBuilderFieldList(
+											{
+												fields: fieldColumns
+											}
+										)
+									}
+								);
+
+								layoutColumns.push(layoutColumn);
+
+								fieldColumns = [];
+							}
+						);
+
+						visitor.set(
+							'rowHandler',
+							function(row) {
+								var layout = instance.getActiveLayout();
+
+								layout.addRow(
+									instance._currentRowIndex(),
+									new A.LayoutRow({cols: layoutColumns})
+								);
+
+								layoutColumns = [];
+							}
+						);
+
+						visitor.visit();
 					},
 
 					createNewField: function(fieldType) {
@@ -992,6 +998,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-form-builder', 'aui-form-builder-pages', 'aui-popover', 'liferay-ddm-form-builder-confirmation-dialog', 'liferay-ddm-form-builder-field-list', 'liferay-ddm-form-builder-field-options-toolbar', 'liferay-ddm-form-builder-fieldset', 'liferay-ddm-form-builder-field-settings-sidebar', 'liferay-ddm-form-builder-field-support', 'liferay-ddm-form-builder-field-type', 'liferay-ddm-form-builder-field-types-sidebar', 'liferay-ddm-form-builder-layout-deserializer', 'liferay-ddm-form-builder-layout-visitor', 'liferay-ddm-form-builder-pages-manager', 'liferay-ddm-form-builder-util', 'liferay-ddm-form-field-types', 'liferay-ddm-form-renderer', 'liferay-ddm-form-renderer-util']
+		requires: ['aui-form-builder', 'aui-form-builder-pages', 'aui-popover', 'liferay-ddm-form-builder-confirmation-dialog', 'liferay-ddm-form-builder-field-list', 'liferay-ddm-form-builder-field-options-toolbar', 'liferay-ddm-form-builder-field-settings-sidebar', 'liferay-ddm-form-builder-field-support', 'liferay-ddm-form-builder-field-type', 'liferay-ddm-form-builder-field-types-sidebar', 'liferay-ddm-form-builder-fieldset', 'liferay-ddm-form-builder-layout-deserializer', 'liferay-ddm-form-builder-layout-visitor', 'liferay-ddm-form-builder-pages-manager', 'liferay-ddm-form-builder-util', 'liferay-ddm-form-field-types', 'liferay-ddm-form-renderer', 'liferay-ddm-form-renderer-layout-visitor', 'liferay-ddm-form-renderer-util']
 	}
 );
