@@ -330,7 +330,7 @@ public class DDMFormAdminDisplayContextTest extends PowerMockito {
 			resourceBundleLoader);
 
 		when(
-			resourceBundleLoader.loadResourceBundle(Matchers.anyString())
+			resourceBundleLoader.loadResourceBundle(Matchers.any(Locale.class))
 		).thenReturn(
 			ResourceBundleUtil.EMPTY_RESOURCE_BUNDLE
 		);
