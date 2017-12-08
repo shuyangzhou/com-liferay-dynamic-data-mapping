@@ -2865,6 +2865,10 @@ AUI.add(
 						value: false
 					},
 
+					requestedLocale: {
+						validator: Lang.isString
+					},
+
 					translationManager: {
 						valueFn: '_valueTranslationManager'
 					}
@@ -2919,6 +2923,10 @@ AUI.add(
 						AArray.invoke(instance.eventHandlers, 'detach');
 						AArray.invoke(instance.get('fields'), 'destroy');
 
+						if (instance._translationManagerHandle) {
+							instance._translationManagerHandle.detach();
+						}
+
 						instance.get('container').remove();
 
 						instance.eventHandlers = null;
@@ -2929,6 +2937,12 @@ AUI.add(
 								item.destroy();
 							}
 						);
+
+						var translationManager = instance.get('translationManager');
+
+						if (translationManager) {
+							translationManager.destroy();
+						}
 
 						instance.repeatableInstances = null;
 					},
@@ -3146,6 +3160,29 @@ AUI.add(
 						instance.updateDDMFormInputValue();
 					},
 
+					_onTranslationManagerRegistered: function(event) {
+						var instance = this;
+
+						var translationManagerId = instance.get('portletNamespace') + 'translationManager';
+
+						var translationManager = instance.get('translationManager');
+
+						translationManager.destroy();
+
+						translationManager = Liferay.component(translationManagerId);
+
+						translationManager.addTarget(instance);
+
+						AArray.each(
+							instance.get('fields'),
+							function(field) {
+								translationManager.addTarget(field);
+							}
+						);
+
+						instance.set('translationManager', translationManager);
+					},
+
 					_valueDisplayLocale: function() {
 						var instance = this;
 
@@ -3179,13 +3216,20 @@ AUI.add(
 					_valueTranslationManager: function() {
 						var instance = this;
 
-						var translationManager = Liferay.component(instance.get('portletNamespace') + 'translationManager');
+						var translationManagerId = instance.get('portletNamespace') + 'translationManager';
+
+						var translationManager = Liferay.component(translationManagerId);
 
 						if (!translationManager) {
 							translationManager = new Liferay.TranslationManager(
 								{
-									defaultLocale: themeDisplay.getLanguageId()
+									defaultLocale: instance.get('requestedLocale') || themeDisplay.getLanguageId()
 								}
+							);
+
+							instance._translationManagerHandle = Liferay.once(
+								translationManagerId + ':registered',
+								instance._onTranslationManagerRegistered.bind(instance)
 							);
 						}
 

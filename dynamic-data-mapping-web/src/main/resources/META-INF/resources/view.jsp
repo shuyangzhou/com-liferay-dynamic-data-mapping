@@ -76,7 +76,7 @@ structureSearch.setOrderByType(ddmDisplayContext.getOrderByType());
 	<div class="container-fluid-1280" id="<portlet:namespace />entriesContainer">
 		<liferay-ui:search-container
 			id="ddmStructures"
-			rowChecker="<%= new EmptyOnClickRowChecker(renderResponse) %>"
+			rowChecker="<%= new DDMStructureRowChecker(renderResponse) %>"
 			searchContainer="<%= structureSearch %>"
 		>
 			<liferay-ui:search-container-results>
