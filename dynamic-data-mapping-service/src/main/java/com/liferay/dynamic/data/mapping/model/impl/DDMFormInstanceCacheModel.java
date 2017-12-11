@@ -21,7 +21,6 @@ import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -110,7 +109,7 @@ public class DDMFormInstanceCacheModel implements CacheModel<DDMFormInstance>,
 		DDMFormInstanceImpl ddmFormInstanceImpl = new DDMFormInstanceImpl();
 
 		if (uuid == null) {
-			ddmFormInstanceImpl.setUuid(StringPool.BLANK);
+			ddmFormInstanceImpl.setUuid("");
 		}
 		else {
 			ddmFormInstanceImpl.setUuid(uuid);
@@ -122,7 +121,7 @@ public class DDMFormInstanceCacheModel implements CacheModel<DDMFormInstance>,
 		ddmFormInstanceImpl.setUserId(userId);
 
 		if (userName == null) {
-			ddmFormInstanceImpl.setUserName(StringPool.BLANK);
+			ddmFormInstanceImpl.setUserName("");
 		}
 		else {
 			ddmFormInstanceImpl.setUserName(userName);
@@ -131,7 +130,7 @@ public class DDMFormInstanceCacheModel implements CacheModel<DDMFormInstance>,
 		ddmFormInstanceImpl.setVersionUserId(versionUserId);
 
 		if (versionUserName == null) {
-			ddmFormInstanceImpl.setVersionUserName(StringPool.BLANK);
+			ddmFormInstanceImpl.setVersionUserName("");
 		}
 		else {
 			ddmFormInstanceImpl.setVersionUserName(versionUserName);
@@ -154,28 +153,28 @@ public class DDMFormInstanceCacheModel implements CacheModel<DDMFormInstance>,
 		ddmFormInstanceImpl.setStructureId(structureId);
 
 		if (version == null) {
-			ddmFormInstanceImpl.setVersion(StringPool.BLANK);
+			ddmFormInstanceImpl.setVersion("");
 		}
 		else {
 			ddmFormInstanceImpl.setVersion(version);
 		}
 
 		if (name == null) {
-			ddmFormInstanceImpl.setName(StringPool.BLANK);
+			ddmFormInstanceImpl.setName("");
 		}
 		else {
 			ddmFormInstanceImpl.setName(name);
 		}
 
 		if (description == null) {
-			ddmFormInstanceImpl.setDescription(StringPool.BLANK);
+			ddmFormInstanceImpl.setDescription("");
 		}
 		else {
 			ddmFormInstanceImpl.setDescription(description);
 		}
 
 		if (settings == null) {
-			ddmFormInstanceImpl.setSettings(StringPool.BLANK);
+			ddmFormInstanceImpl.setSettings("");
 		}
 		else {
 			ddmFormInstanceImpl.setSettings(settings);
@@ -228,7 +227,7 @@ public class DDMFormInstanceCacheModel implements CacheModel<DDMFormInstance>,
 	public void writeExternal(ObjectOutput objectOutput)
 		throws IOException {
 		if (uuid == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(uuid);
@@ -243,7 +242,7 @@ public class DDMFormInstanceCacheModel implements CacheModel<DDMFormInstance>,
 		objectOutput.writeLong(userId);
 
 		if (userName == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(userName);
@@ -252,7 +251,7 @@ public class DDMFormInstanceCacheModel implements CacheModel<DDMFormInstance>,
 		objectOutput.writeLong(versionUserId);
 
 		if (versionUserName == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(versionUserName);
@@ -264,28 +263,28 @@ public class DDMFormInstanceCacheModel implements CacheModel<DDMFormInstance>,
 		objectOutput.writeLong(structureId);
 
 		if (version == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(version);
 		}
 
 		if (name == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(name);
 		}
 
 		if (description == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(description);
 		}
 
 		if (settings == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(settings);

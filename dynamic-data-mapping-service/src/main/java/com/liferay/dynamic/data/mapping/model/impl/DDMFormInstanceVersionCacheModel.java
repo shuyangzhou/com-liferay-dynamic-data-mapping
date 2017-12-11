@@ -21,7 +21,6 @@ import com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion;
 import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -115,7 +114,7 @@ public class DDMFormInstanceVersionCacheModel implements CacheModel<DDMFormInsta
 		ddmFormInstanceVersionImpl.setUserId(userId);
 
 		if (userName == null) {
-			ddmFormInstanceVersionImpl.setUserName(StringPool.BLANK);
+			ddmFormInstanceVersionImpl.setUserName("");
 		}
 		else {
 			ddmFormInstanceVersionImpl.setUserName(userName);
@@ -132,28 +131,28 @@ public class DDMFormInstanceVersionCacheModel implements CacheModel<DDMFormInsta
 		ddmFormInstanceVersionImpl.setStructureVersionId(structureVersionId);
 
 		if (name == null) {
-			ddmFormInstanceVersionImpl.setName(StringPool.BLANK);
+			ddmFormInstanceVersionImpl.setName("");
 		}
 		else {
 			ddmFormInstanceVersionImpl.setName(name);
 		}
 
 		if (description == null) {
-			ddmFormInstanceVersionImpl.setDescription(StringPool.BLANK);
+			ddmFormInstanceVersionImpl.setDescription("");
 		}
 		else {
 			ddmFormInstanceVersionImpl.setDescription(description);
 		}
 
 		if (settings == null) {
-			ddmFormInstanceVersionImpl.setSettings(StringPool.BLANK);
+			ddmFormInstanceVersionImpl.setSettings("");
 		}
 		else {
 			ddmFormInstanceVersionImpl.setSettings(settings);
 		}
 
 		if (version == null) {
-			ddmFormInstanceVersionImpl.setVersion(StringPool.BLANK);
+			ddmFormInstanceVersionImpl.setVersion("");
 		}
 		else {
 			ddmFormInstanceVersionImpl.setVersion(version);
@@ -163,7 +162,7 @@ public class DDMFormInstanceVersionCacheModel implements CacheModel<DDMFormInsta
 		ddmFormInstanceVersionImpl.setStatusByUserId(statusByUserId);
 
 		if (statusByUserName == null) {
-			ddmFormInstanceVersionImpl.setStatusByUserName(StringPool.BLANK);
+			ddmFormInstanceVersionImpl.setStatusByUserName("");
 		}
 		else {
 			ddmFormInstanceVersionImpl.setStatusByUserName(statusByUserName);
@@ -220,7 +219,7 @@ public class DDMFormInstanceVersionCacheModel implements CacheModel<DDMFormInsta
 		objectOutput.writeLong(userId);
 
 		if (userName == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(userName);
@@ -233,28 +232,28 @@ public class DDMFormInstanceVersionCacheModel implements CacheModel<DDMFormInsta
 		objectOutput.writeLong(structureVersionId);
 
 		if (name == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(name);
 		}
 
 		if (description == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(description);
 		}
 
 		if (settings == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(settings);
 		}
 
 		if (version == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(version);
@@ -265,7 +264,7 @@ public class DDMFormInstanceVersionCacheModel implements CacheModel<DDMFormInsta
 		objectOutput.writeLong(statusByUserId);
 
 		if (statusByUserName == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(statusByUserName);

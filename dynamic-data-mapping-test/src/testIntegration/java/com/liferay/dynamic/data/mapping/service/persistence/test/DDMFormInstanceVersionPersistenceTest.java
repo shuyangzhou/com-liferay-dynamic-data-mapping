@@ -35,7 +35,6 @@ import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
@@ -205,9 +204,9 @@ public class DDMFormInstanceVersionPersistenceTest {
 
 	@Test
 	public void testCountByF_V() throws Exception {
-		_persistence.countByF_V(RandomTestUtil.nextLong(), StringPool.BLANK);
+		_persistence.countByF_V(RandomTestUtil.nextLong(), "");
 
-		_persistence.countByF_V(0L, StringPool.NULL);
+		_persistence.countByF_V(0L, "null");
 
 		_persistence.countByF_V(0L, (String)null);
 	}

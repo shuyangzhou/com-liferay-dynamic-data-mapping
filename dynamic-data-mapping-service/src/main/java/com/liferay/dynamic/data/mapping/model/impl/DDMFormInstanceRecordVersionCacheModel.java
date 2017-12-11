@@ -21,7 +21,6 @@ import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecordVersion;
 import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -114,7 +113,7 @@ public class DDMFormInstanceRecordVersionCacheModel implements CacheModel<DDMFor
 		ddmFormInstanceRecordVersionImpl.setUserId(userId);
 
 		if (userName == null) {
-			ddmFormInstanceRecordVersionImpl.setUserName(StringPool.BLANK);
+			ddmFormInstanceRecordVersionImpl.setUserName("");
 		}
 		else {
 			ddmFormInstanceRecordVersionImpl.setUserName(userName);
@@ -130,7 +129,7 @@ public class DDMFormInstanceRecordVersionCacheModel implements CacheModel<DDMFor
 		ddmFormInstanceRecordVersionImpl.setFormInstanceId(formInstanceId);
 
 		if (formInstanceVersion == null) {
-			ddmFormInstanceRecordVersionImpl.setFormInstanceVersion(StringPool.BLANK);
+			ddmFormInstanceRecordVersionImpl.setFormInstanceVersion("");
 		}
 		else {
 			ddmFormInstanceRecordVersionImpl.setFormInstanceVersion(formInstanceVersion);
@@ -139,7 +138,7 @@ public class DDMFormInstanceRecordVersionCacheModel implements CacheModel<DDMFor
 		ddmFormInstanceRecordVersionImpl.setFormInstanceRecordId(formInstanceRecordId);
 
 		if (version == null) {
-			ddmFormInstanceRecordVersionImpl.setVersion(StringPool.BLANK);
+			ddmFormInstanceRecordVersionImpl.setVersion("");
 		}
 		else {
 			ddmFormInstanceRecordVersionImpl.setVersion(version);
@@ -149,7 +148,7 @@ public class DDMFormInstanceRecordVersionCacheModel implements CacheModel<DDMFor
 		ddmFormInstanceRecordVersionImpl.setStatusByUserId(statusByUserId);
 
 		if (statusByUserName == null) {
-			ddmFormInstanceRecordVersionImpl.setStatusByUserName(StringPool.BLANK);
+			ddmFormInstanceRecordVersionImpl.setStatusByUserName("");
 		}
 		else {
 			ddmFormInstanceRecordVersionImpl.setStatusByUserName(statusByUserName);
@@ -208,7 +207,7 @@ public class DDMFormInstanceRecordVersionCacheModel implements CacheModel<DDMFor
 		objectOutput.writeLong(userId);
 
 		if (userName == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(userName);
@@ -219,7 +218,7 @@ public class DDMFormInstanceRecordVersionCacheModel implements CacheModel<DDMFor
 		objectOutput.writeLong(formInstanceId);
 
 		if (formInstanceVersion == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(formInstanceVersion);
@@ -228,7 +227,7 @@ public class DDMFormInstanceRecordVersionCacheModel implements CacheModel<DDMFor
 		objectOutput.writeLong(formInstanceRecordId);
 
 		if (version == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(version);
@@ -239,7 +238,7 @@ public class DDMFormInstanceRecordVersionCacheModel implements CacheModel<DDMFor
 		objectOutput.writeLong(statusByUserId);
 
 		if (statusByUserName == null) {
-			objectOutput.writeUTF(StringPool.BLANK);
+			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(statusByUserName);
