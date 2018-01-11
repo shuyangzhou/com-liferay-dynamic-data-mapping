@@ -319,7 +319,9 @@ AUI.add(
 
 						options.forEach(
 							function(option) {
-								option.set('generationLocked', !editable);
+								if (option.getValue()) {
+									option.set('generationLocked', !editable);
+								}
 							}
 						);
 					},
@@ -491,6 +493,19 @@ AUI.add(
 						instance._bindOptionUI(instance._mainOption);
 					},
 
+					_getCurrentDefaultLanguageId: function() {
+						var instance = this;
+
+						var form = instance.get('parent');
+
+						if (!form) {
+							return instance.get('locale');
+						}
+						var builder = form.get('builder');
+
+						return builder.get('defaultLanguageId');
+					},
+
 					_getCurrentEditingLanguageId: function() {
 						var instance = this;
 
@@ -499,10 +514,9 @@ AUI.add(
 						if (!form) {
 							return instance.get('locale');
 						}
+						var builder = form.get('builder');
 
-						var field = form.get('field');
-
-						return field.get('locale');
+						return builder.get('editingLanguageId');
 					},
 
 					_getCurrentLocaleOptionsValues: function() {
@@ -510,7 +524,7 @@ AUI.add(
 
 						var value = instance.get('value');
 
-						var defaultLanguageId = instance.get('locale');
+						var defaultLanguageId = instance._getCurrentDefaultLanguageId();
 						var editingLanguageId = instance._getCurrentEditingLanguageId();
 
 						return value[editingLanguageId] || value[defaultLanguageId] || [];
@@ -618,7 +632,7 @@ AUI.add(
 
 						var context = OptionsField.superclass._setContext.apply(instance, arguments);
 
-						var locale = instance.get('locale');
+						var locale = instance._getCurrentEditingLanguageId();
 
 						var value = context.value;
 

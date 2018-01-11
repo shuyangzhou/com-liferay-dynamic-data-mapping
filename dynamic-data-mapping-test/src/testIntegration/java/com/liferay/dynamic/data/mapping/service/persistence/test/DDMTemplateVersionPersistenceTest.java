@@ -22,6 +22,8 @@ import com.liferay.dynamic.data.mapping.service.DDMTemplateVersionLocalServiceUt
 import com.liferay.dynamic.data.mapping.service.persistence.DDMTemplateVersionPersistence;
 import com.liferay.dynamic.data.mapping.service.persistence.DDMTemplateVersionUtil;
 
+import com.liferay.petra.string.StringPool;
+
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -35,7 +37,6 @@ import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
@@ -212,9 +213,9 @@ public class DDMTemplateVersionPersistenceTest {
 
 	@Test
 	public void testCountByT_V() throws Exception {
-		_persistence.countByT_V(RandomTestUtil.nextLong(), StringPool.BLANK);
+		_persistence.countByT_V(RandomTestUtil.nextLong(), "");
 
-		_persistence.countByT_V(0L, StringPool.NULL);
+		_persistence.countByT_V(0L, "null");
 
 		_persistence.countByT_V(0L, (String)null);
 	}

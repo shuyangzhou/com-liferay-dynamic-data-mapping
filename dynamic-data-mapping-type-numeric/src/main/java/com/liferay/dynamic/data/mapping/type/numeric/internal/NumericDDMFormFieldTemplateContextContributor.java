@@ -19,7 +19,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.render.DDMFormFieldRenderingContext;
-import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.petra.string.StringPool;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -53,6 +53,9 @@ public class NumericDDMFormFieldTemplateContextContributor
 		Locale locale = ddmFormFieldRenderingContext.getLocale();
 
 		parameters.put("placeholder", getValueString(placeholder, locale));
+		parameters.put(
+			"predefinedValue",
+			getValueString(ddmFormField.getPredefinedValue(), locale));
 
 		LocalizedValue tooltip = (LocalizedValue)ddmFormField.getProperty(
 			"tooltip");
