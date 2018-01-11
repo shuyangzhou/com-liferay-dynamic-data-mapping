@@ -24,6 +24,8 @@ import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
 
 import com.liferay.exportimport.kernel.lar.StagedModelType;
 
+import com.liferay.petra.string.StringPool;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.LocaleException;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -39,7 +41,6 @@ import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -254,7 +255,7 @@ public class DDMContentModelImpl extends BaseModelImpl<DDMContent>
 	@Override
 	public String getUuid() {
 		if (_uuid == null) {
-			return StringPool.BLANK;
+			return "";
 		}
 		else {
 			return _uuid;
@@ -346,7 +347,7 @@ public class DDMContentModelImpl extends BaseModelImpl<DDMContent>
 			return user.getUuid();
 		}
 		catch (PortalException pe) {
-			return StringPool.BLANK;
+			return "";
 		}
 	}
 
@@ -357,7 +358,7 @@ public class DDMContentModelImpl extends BaseModelImpl<DDMContent>
 	@Override
 	public String getUserName() {
 		if (_userName == null) {
-			return StringPool.BLANK;
+			return "";
 		}
 		else {
 			return _userName;
@@ -398,7 +399,7 @@ public class DDMContentModelImpl extends BaseModelImpl<DDMContent>
 	@Override
 	public String getName() {
 		if (_name == null) {
-			return StringPool.BLANK;
+			return "";
 		}
 		else {
 			return _name;
@@ -496,7 +497,7 @@ public class DDMContentModelImpl extends BaseModelImpl<DDMContent>
 	@Override
 	public String getDescription() {
 		if (_description == null) {
-			return StringPool.BLANK;
+			return "";
 		}
 		else {
 			return _description;
@@ -511,7 +512,7 @@ public class DDMContentModelImpl extends BaseModelImpl<DDMContent>
 	@Override
 	public String getData() {
 		if (_data == null) {
-			return StringPool.BLANK;
+			return "";
 		}
 		else {
 			return _data;
@@ -569,7 +570,7 @@ public class DDMContentModelImpl extends BaseModelImpl<DDMContent>
 		String xml = getName();
 
 		if (xml == null) {
-			return StringPool.BLANK;
+			return "";
 		}
 
 		Locale defaultLocale = LocaleUtil.getSiteDefault();

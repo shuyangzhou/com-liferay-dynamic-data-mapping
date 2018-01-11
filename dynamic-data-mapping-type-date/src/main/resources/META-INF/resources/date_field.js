@@ -8,7 +8,7 @@ AUI.add(
 				popover: {
 					zIndex: Liferay.zIndex.TOOLTIP
 				},
-				trigger: '.liferay-ddm-form-field-date .trigger'
+				trigger: '.liferay-ddm-form-field-date .form-control'
 			}
 		);
 
@@ -21,6 +21,10 @@ AUI.add(
 
 					mask: {
 						value: Liferay.AUI.getDateFormat()
+					},
+
+					predefinedValue: {
+						value: ''
 					},
 
 					type: {
@@ -72,12 +76,17 @@ AUI.add(
 					getTemplateContext: function() {
 						var instance = this;
 
+						var predefinedValue = instance.get('predefinedValue');
 						var value = instance.get('value');
+
+						instance.set('readOnly', false);
 
 						return A.merge(
 							DateField.superclass.getTemplateContext.apply(instance, arguments),
 							{
-								displayValue: instance.formatDate(value),
+								formattedValue: instance.formatDate(value),
+								predefinedValue: instance.formatDate(predefinedValue),
+								readOnly: false,
 								value: value
 							}
 						);
@@ -90,13 +99,7 @@ AUI.add(
 
 						var triggerNode;
 
-						if (instance.get('readOnly')) {
-							triggerNode = container.one('.trigger-readonly');
-						}
-						else {
-							triggerNode = container.one('.trigger');
-						}
-
+						triggerNode = container.one('.form-control');
 						return triggerNode;
 					},
 
@@ -105,9 +108,9 @@ AUI.add(
 
 						DateField.superclass.setValue.apply(instance, arguments);
 
-						var formattedDate = instance.formatDate(isoDate);
+						var formattedValue = instance.get('formattedValue');
 
-						instance.getTriggerNode().val(formattedDate);
+						instance.getTriggerNode().val(formattedValue);
 
 						instance.set('value', isoDate);
 					},
@@ -140,6 +143,8 @@ AUI.add(
 
 							instance.validate();
 						}
+
+						instance._fireStartedFillingEvent();
 					},
 
 					_onActiveInputChange: function(event) {
