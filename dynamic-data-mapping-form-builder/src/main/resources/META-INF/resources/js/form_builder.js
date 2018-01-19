@@ -31,7 +31,7 @@ AUI.add(
 
 		var Lang = A.Lang;
 
-		var MOVE_COLUMN_CONTAINER = '<div class="' + CSS_RESIZE_COL_DRAGGABLE_BORDER + '"></div>' + '<div class="' + CSS_RESIZE_COL_DRAGGABLE_HANDLE + '">' + Liferay.Util.getLexiconIconTpl('horizontal-scroll') + '</div>';
+		var MOVE_COLUMN_CONTAINER = '<div class="' + CSS_RESIZE_COL_DRAGGABLE_BORDER + '"></div><div class="' + CSS_RESIZE_COL_DRAGGABLE_HANDLE + '">' + Liferay.Util.getLexiconIconTpl('horizontal-scroll') + '</div>';
 
 		var MOVE_COLUMN_TPL = '<div class="' + CSS_RESIZE_COL_DRAGGABLE + ' lfr-tpl">' + MOVE_COLUMN_CONTAINER + '</div>';
 
@@ -89,16 +89,16 @@ AUI.add(
 						valueFn: '_valueFieldTypesPanel'
 					},
 
+					formInstanceId: {
+						value: 0
+					},
+
 					layouts: {
 						valueFn: '_valueLayouts'
 					},
 
 					pageManager: {
 						value: {}
-					},
-
-					recordSetId: {
-						value: 0
 					},
 
 					showPagination: {
@@ -344,6 +344,9 @@ AUI.add(
 						var field = instance.createField(fieldType);
 
 						instance._insertField(field);
+
+						field.newField = true;
+
 						instance.showFieldSettingsPanel(field);
 					},
 
@@ -456,7 +459,7 @@ AUI.add(
 
 						var translating = instance.get('defaultLanguageId') !== instance.get('editingLanguageId');
 
-						return instance.get('recordSetId') > 0 || translating;
+						return instance.get('formInstanceId') > 0 || translating;
 					},
 
 					openConfirmCancelFieldChangesDiolog: function(confirmFn) {
@@ -481,7 +484,8 @@ AUI.add(
 							confirmFn: confirmFn,
 							id: 'deleteFieldDialog',
 							labelHTML: Liferay.Language.get('yes-delete'),
-							title: Liferay.Language.get('delete-field-question')
+							title: Liferay.Language.get('delete-field-dialog-title'),
+							width: 300
 						};
 
 						FormBuilderConfirmDialog.open(config);

@@ -18,6 +18,7 @@ import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormEvaluationResult;
 import com.liferay.dynamic.data.mapping.form.evaluator.DDMFormFieldEvaluationResult;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTemplateContextContributor;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueAccessor;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRendererConstants;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
@@ -27,14 +28,15 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.render.DDMFormFieldRenderingContext;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.language.LanguageConstants;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.KeyValuePair;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
@@ -72,9 +74,8 @@ public class DDMFormFieldTemplateContextFactory {
 			_ddmFormFieldValues, StringPool.BLANK);
 	}
 
-	protected DDMFormFieldRenderingContext
-		createDDDMFormFieldRenderingContext(
-			Map<String, Object> ddmFormFieldTemplateContext) {
+	protected DDMFormFieldRenderingContext createDDDMFormFieldRenderingContext(
+		Map<String, Object> ddmFormFieldTemplateContext) {
 
 		DDMFormFieldRenderingContext ddmFormFieldRenderingContext =
 			new DDMFormFieldRenderingContext();
@@ -126,6 +127,8 @@ public class DDMFormFieldTemplateContextFactory {
 			ddmFormFieldTemplateContext, ddmFormFieldValue.getName());
 		setDDMFormFieldTemplateContextInstanceId(
 			ddmFormFieldTemplateContext, ddmFormFieldValue.getInstanceId());
+		setDDMFormFieldTemplateContextLocale(
+			ddmFormFieldTemplateContext, "locale", _locale);
 		setDDMFormFieldTemplateContextLocalizedValue(
 			ddmFormFieldTemplateContext, "label", ddmFormField.getLabel());
 		setDDMFormFieldTemplateContextLocalizable(
@@ -168,7 +171,7 @@ public class DDMFormFieldTemplateContextFactory {
 		setDDMFormFieldTemplateContextValueChanged(
 			ddmFormFieldEvaluationResult, ddmFormFieldTemplateContext);
 		setDDMFormFieldTemplateContextValueLocalizableValue(
-			ddmFormFieldTemplateContext, ddmFormFieldValue.getValue());
+			ddmFormFieldTemplateContext, ddmFormFieldValue);
 		setDDMFormFieldTemplateContextValidation(
 			ddmFormFieldTemplateContext,
 			ddmFormField.getDDMFormFieldValidation());
@@ -404,6 +407,14 @@ public class DDMFormFieldTemplateContextFactory {
 		ddmFormFieldTemplateContext.put("instanceId", instanceId);
 	}
 
+	protected void setDDMFormFieldTemplateContextLocale(
+		Map<String, Object> ddmFormFieldTemplateContext, String propertyName,
+		Locale locale) {
+
+		ddmFormFieldTemplateContext.put(
+			propertyName, LocaleUtil.toLanguageId(locale));
+	}
+
 	protected void setDDMFormFieldTemplateContextLocalizable(
 		Map<String, Object> ddmFormFieldTemplateContext, boolean localizable) {
 
@@ -560,18 +571,38 @@ public class DDMFormFieldTemplateContextFactory {
 	}
 
 	protected void setDDMFormFieldTemplateContextValueLocalizableValue(
-		Map<String, Object> ddmFormFieldTemplateContext, Value value) {
+		Map<String, Object> ddmFormFieldTemplateContext,
+		DDMFormFieldValue ddmFormFieldValue) {
 
-		if ((value == null) || !(value instanceof LocalizedValue)) {
+		if (ddmFormFieldValue == null) {
 			return;
 		}
 
-		Map<String, String> localizedValue = new HashMap<>();
+		Value value = ddmFormFieldValue.getValue();
+
+		if (!(value instanceof LocalizedValue)) {
+			return;
+		}
+
+		Map<String, Object> localizedValue = new HashMap<>();
 
 		for (Locale availableLocale : value.getAvailableLocales()) {
-			localizedValue.put(
-				LanguageUtil.getLanguageId(availableLocale),
-				value.getString(availableLocale));
+			DDMFormFieldValueAccessor<?> ddmFormFieldValueAccessor =
+				_ddmFormFieldTypeServicesTracker.getDDMFormFieldValueAccessor(
+					MapUtil.getString(ddmFormFieldTemplateContext, "type"));
+
+			String languageId = LanguageUtil.getLanguageId(availableLocale);
+
+			if (ddmFormFieldValueAccessor == null) {
+				localizedValue.put(
+					languageId, value.getString(availableLocale));
+			}
+			else {
+				localizedValue.put(
+					languageId,
+					ddmFormFieldValueAccessor.getValue(
+						ddmFormFieldValue, availableLocale));
+			}
 		}
 
 		ddmFormFieldTemplateContext.put("localizedValue", localizedValue);

@@ -15,9 +15,9 @@
 package com.liferay.dynamic.data.mapping.webdav;
 
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.util.ContentTypes;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.webdav.BaseResourceImpl;
 import com.liferay.portal.kernel.webdav.WebDAVException;
 
@@ -46,8 +46,10 @@ public class DDMTemplateResourceImpl extends BaseResourceImpl {
 	@Override
 	public InputStream getContentAsStream() throws WebDAVException {
 		try {
+			String script = _template.getScript();
+
 			return new UnsyncByteArrayInputStream(
-				_template.getScript().getBytes(StringPool.UTF8));
+				script.getBytes(StringPool.UTF8));
 		}
 		catch (Exception e) {
 			throw new WebDAVException(e);
